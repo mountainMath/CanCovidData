@@ -19,12 +19,16 @@ remotes::install_github("mountainmath/CanCovidData")
 
 ## Example
 
-
-
 ``` r
 library(CanCovidData)
 provincial_data <- get_canada_official_provincial_data() 
 
 country_data <- get_country_timeline_ecdc_jhs_data()
 ```
+
+
+### Contributing
+
+[Issues](https://github.com/mountainMath/CanCovidData/issues) and [pull requests](https://github.com/mountainMath/CanCovidData/pulls) are highly appreciated. 
+
 
