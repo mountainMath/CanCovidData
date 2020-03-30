@@ -1,0 +1,113 @@
+---
+title: "Rolling growth rates"
+author: "Jens von Bergmann"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{rolling_growth_rates}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(CanCovidData)
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
+country_data <- get_country_timeline_ecdc_jhs_data()
+```
+
+```{r}
+case_text_lookup <- c(
+    "Confirmed" = "confirmed cases",
+    "Deaths" = "deaths",
+    "Active" = "active confirmed cases"
+)
+
+country_base_colours <- setNames(c("black",RColorBrewer::brewer.pal(8,"Dark2")),
+                                 c("Canada",
+                                   "USA",
+                                   "Germany",
+                                   "France",
+                                   "Italy",
+                                   "UK",
+                                   "Spain",
+                                   "Switzerland",
+                                   "South Korea"))
+
+```
+
+```{r}
+start_cutoff <- 100
+window_width <- 7
+metric <- "Confirmed"
+case_text <- case_text_lookup[metric]
+
+country_data %>%
+  filter(Country %in% names(country_base_colours)) %>%
+  mutate(total=!!as.name(metric)) %>%
+  mutate(region=Country) %>%
+  add_days_since(start_cutoff) %>%
+  filter(d>=0) %>%
+  growth_rate_graph(window_width) +
+    scale_color_manual(values=country_base_colours) +
+    labs(title=paste0("Countries COVID-19 ",case_text," growth rate"),
+       color="Country",
+       x=paste0("Days after ",start_cutoff," ",case_text," in rolling window"),
+       caption="MountainMath, Data ECDC, JHS") 
+
+```
+
+
+
+
+```{r}
+start_cutoff=100
+metric="Confirmed"
+case_text <- case_text_lookup[metric]
+
+country_data %>%
+  filter(Country %in% names(country_base_colours)) %>%
+  mutate(region=factor(Country,levels=names(country_base_colours))) %>%
+  mutate(total=!!as.name(metric)) %>%
+  add_days_since(start_cutoff) %>%
+  filter(d>=0) %>%
+  group_by(region) %>%
+  filter(max(d)>2) %>%
+  total_graph() +
+  scale_color_manual(values=country_base_colours,guide=FALSE) +
+  labs(title=paste0("COVID-19 ",case_text," in select countries"),
+       x=paste0("Days after reporting at least ",start_cutoff," ",case_text),
+       y=paste0("Number of ",case_text," (log scale)"),
+       caption="MountainMath, Data: ECDC, JHS") 
+```
+
+
+```{r}
+provincial_data <- get_canada_official_provincial_data() 
+
+provincial_data %>%
+  mutate(total=!!as.name(metric)) %>%
+  mutate(region=shortProvince) %>%
+  add_days_since(50) %>%
+  filter(d>=0) %>%
+  group_by(region) %>%
+  filter(max(d)>2) %>%
+  total_graph() +
+  scale_color_discrete(guide=FALSE) +
+  #scale_color_manual(values=country_base_colours,guide=FALSE) +
+  labs(title=paste0("COVID-19 ",case_text," in select countries"),
+       colour=NULL,
+       x=paste0("Days after reporting at least ",start_cutoff," ",case_text),
+       y=paste0("Number of ",case_text," (log scale)"),
+       caption="MountainMath, Data: Canada.ca") 
+```
+
