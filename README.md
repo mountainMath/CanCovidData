@@ -6,6 +6,9 @@
 The goal of CanCovidData is to provide a collection of covid-19 data import functions for international
 and Canadian data, as well as some helper functions for data processing and graphing.
 
+## Documentation
+Please consult the [documentation and example articles](https://mountainmath.github.io/CanCovidData/) for further information.
+
 ## Installation
 
 You can install the released version of CanCovidData from [GitHub](https://github.com/mountainMath/CanCovidData) with:
