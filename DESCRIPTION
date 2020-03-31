@@ -1,7 +1,7 @@
 Package: CanCovidData
 Type: Package
 Title: Access Canadian and International COVID-19 Data
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: c(
     person("Jens", "von Bergmann", email = "jens@mountainmath.ca", role = c("cre"))
     )
@@ -15,11 +15,20 @@ Depends: R (>= 2.10)
 Imports: 
     dplyr (>= 0.8.5),
     readr,
+    lubridate,
+    httr,
+    purrr,
+    roll,
+    scales,
+    readxl,
+    rlang,
+    ggplot2,
+    utils,
     tidyr (>= 1.0.2)
 Suggests: 
     knitr,
-    rmarkdown,
-    ggplot2
+    RColorBrewer,
+    rmarkdown
 URL: https://github.com/mountainMath/CanCovidData, https://mountainmath.github.io/CanCovidData/
 BugReports: https://github.com/mountainMath/CanCovidData/issues
 VignetteBuilder: knitr

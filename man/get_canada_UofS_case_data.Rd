@@ -2,7 +2,7 @@
 % Please edit documentation in R/canada_covid_data_import.R
 \name{get_canada_UofS_case_data}
 \alias{get_canada_UofS_case_data}
-\title{data from UofS}
+\title{data from UofS (https://covid19tracker.ca/)}
 \usage{
 get_canada_UofS_case_data()
 }
@@ -11,5 +11,5 @@ dataframe with columns `Province`, `shortProvince`, `Health Region`, `Date`, `Ag
 `Travel history`, `Confirmed state`
 }
 \description{
-data from UofS
+data from UofS (https://covid19tracker.ca/)
 }

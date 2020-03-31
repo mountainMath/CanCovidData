@@ -77,10 +77,9 @@ get_jhs_data <- function(){
 #' `Deaths`, `Recovered`, `Active`, `Cases`, Cases is daily new cases, others are cumulative
 #' @export
 get_country_timeline_ecdc_jhs_data <- function(){
-  ecdc_data <- mountainmathHelpers::simpleCache({
+  ecdc_data <- simpleCache({
     get_ecdc_data()
-    #}, paste0(cache_key,"_ecdc"),path=here::here("data_cache"),refresh=FALSE)
-  },"static_ecdc_data_snapshot",tempdir(),refresh=FALSE)
+  },"static_ecdc_data_snapshot",path=tempdir(),refresh=FALSE)
 
 
   jhs_data <- get_jhs_data() %>%
@@ -104,7 +103,8 @@ get_country_timeline_ecdc_jhs_data <- function(){
 #' @importFrom readr read_csv
 #' @importFrom readr cols
 #' @importFrom rlang .data
-
+#' @importFrom utils download.file
+#' @importFrom lubridate %m+%
 NULL
 
 ## quiets concerns of R CMD check re: the .'s that appear in pipelines

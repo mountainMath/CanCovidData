@@ -2,7 +2,7 @@
 % Please edit documentation in R/canada_covid_data_import.R
 \name{get_canada_covid_working_group_health_region_data}
 \alias{get_canada_covid_working_group_health_region_data}
-\title{data from the covid-19 data working group}
+\title{data from the covid-19 data working group (https://github.com/ishaberry/Covid19Canada)}
 \usage{
 get_canada_covid_working_group_health_region_data(
   start_cutoff,
@@ -15,5 +15,5 @@ dataframe with columns `Health Region`, `Province`, `shortProvince`, `Date`,
 `Confirmed`, `Deaths`, where all counts are cumulative,
 }
 \description{
-data from the covid-19 data working group
+data from the covid-19 data working group (https://github.com/ishaberry/Covid19Canada)
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/canada_covid_data_import.R
 \name{get_canada_UofS_provincial_data}
 \alias{get_canada_UofS_provincial_data}
-\title{data from UofS}
+\title{data from UofS (https://covid19tracker.ca/)}
 \usage{
 get_canada_UofS_provincial_data()
 }
@@ -12,5 +12,5 @@ dataframe with columns `Province`, `shortProvince`, `Date`,
 all other counts are cumulative. `Confirmed` is `Offical confirmed` plus `Probable` (postive tests which have not been confirmed at an official national or provincial lab)
 }
 \description{
-data from UofS
+data from UofS (https://covid19tracker.ca/)
 }

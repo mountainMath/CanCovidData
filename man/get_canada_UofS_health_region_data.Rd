@@ -2,7 +2,7 @@
 % Please edit documentation in R/canada_covid_data_import.R
 \name{get_canada_UofS_health_region_data}
 \alias{get_canada_UofS_health_region_data}
-\title{data from <a href="https://www.canada.ca/en/public-health/services/diseases/2019-novel-coronavirus-infection.html">Canada.ca</a>}
+\title{data from (https://covid19tracker.ca/)}
 \usage{
 get_canada_UofS_health_region_data()
 }
@@ -12,5 +12,5 @@ dataframe with columns `PR_UID`, `prname`, `prnameFR`, `shortProvince`, `Date`,
 all other counts are cumulative, `Total` is `Confirmed` pluis `Probable` (postive tests which have not been confirmed at an official national or provincial lab)
 }
 \description{
-data from <a href="https://www.canada.ca/en/public-health/services/diseases/2019-novel-coronavirus-infection.html">Canada.ca</a>
+data from (https://covid19tracker.ca/)
 }

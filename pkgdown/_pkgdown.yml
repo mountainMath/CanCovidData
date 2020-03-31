@@ -1,5 +1,6 @@
 pandoc: 2.2.1
 pkgdown: 1.3.0
+destination: docs
 pkgdown_sha: ~
 articles:
   - title: "Example data import and graphs"

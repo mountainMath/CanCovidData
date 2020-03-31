@@ -132,5 +132,7 @@ total_graph <- function(data) {
     theme(legend.position = "bottom")
 }
 
+#' @import ggplot2
 
+NULL
 

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Generate grawth rate graph — total_graph • CanCovidData</title>
+<title>combined data from UofS, Canada.ca and Canada Covid-19 working group. — get_canada_combined_provincial_data • CanCovidData</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -34,9 +34,9 @@
 
   <link href="../extra.css" rel="stylesheet">
   
-<meta property="og:title" content="Generate grawth rate graph — total_graph" />
+<meta property="og:title" content="combined data from UofS, Canada.ca and Canada Covid-19 working group. — get_canada_combined_provincial_data" />
 
-<meta property="og:description" content="Generate grawth rate graph" />
+<meta property="og:description" content="combined data from UofS, Canada.ca and Canada Covid-19 working group." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -117,38 +117,29 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Generate grawth rate graph</h1>
-    <small class="dont-index">Source: <a href='https://github.com/mountainMath/CanCovidData/blob/master/R/covid_graphs.R'><code>R/covid_graphs.R</code></a></small>
-    <div class="hidden name"><code>total_graph.Rd</code></div>
+    <h1>combined data from UofS, Canada.ca and Canada Covid-19 working group.</h1>
+    <small class="dont-index">Source: <a href='https://github.com/mountainMath/CanCovidData/blob/master/R/canada_covid_data_import.R'><code>R/canada_covid_data_import.R</code></a></small>
+    <div class="hidden name"><code>get_canada_combined_provincial_data.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Generate grawth rate graph</p>
+    <p>combined data from UofS, Canada.ca and Canada Covid-19 working group.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>total_graph</span>(<span class='no'>data</span>)</pre>
-    
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>data</th>
-      <td><p>data fram with colum `region` for each group, `Date` with dates and `total`, for fitting the growth rates</p></td>
-    </tr>
-    </table>
-    
+    <pre class="usage"><span class='fu'>get_canada_combined_provincial_data</span>()</pre>
+        
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>a `ggplot` object</p>
+    <p>dataframe with columns `shortProvince`, `Province`, `Date`,
+`Confirmed`, `Deaths`, `Cases`, `Recovered`, `Active`</p>
     
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
           </ul>

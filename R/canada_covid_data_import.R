@@ -1,27 +1,33 @@
-#' data from the covid-19 data working group
+get_canada_covid_working_group_cases <- function(){
+  read_csv("https://github.com/ishaberry/Covid19Canada/raw/master/cases.csv") %>%
+    mutate(Date=as.Date(date_report,format="%d-%m-%Y"),count=1) %>%
+    select(health_region,province,Date,count)
+}
+get_canada_covid_working_group_deaths <- function(){
+  read_csv("https://github.com/ishaberry/Covid19Canada/raw/master/mortality.csv") %>%
+    mutate(Date=as.Date(date_death_report,format="%d-%m-%Y"),count=1) %>%
+    select(health_region,province,Date,count)
+}
+get_canada_covid_working_group_recovered <- function(){
+  read_csv("https://github.com/ishaberry/Covid19Canada/raw/master/recovered_cumulative.csv") %>%
+    filter(!is.na(cumulative_recovered)) %>%
+    mutate(Date=as.Date(date_recovered,format="%d-%m-%Y"),
+           cr=as.integer(cumulative_recovered)) %>%
+    group_by(province) %>%
+    mutate(Recovered=cr-lag(cr,order_by = Date,default = 0)) %>%
+    select(province,Date,count=Recovered) %>%
+    ungroup
+}
+
+#' data from the covid-19 data working group (https://github.com/ishaberry/Covid19Canada)
 #' @return dataframe with columns `province`, `health_region`, `Date`, `type`, `count`
 #' `type` is "Cases", "Deaths", "Recovered". All are new daily cases
 #' and Recovered is cumulative recovered cases.
 #' @export
 get_canada_covid_working_group_data <- function(){
-    tmp=tempfile()
-    download.file("https://docs.google.com/spreadsheets/d/1D6okqtBS3S2NRC7GFVHzaZ67DuTw7LX49-fqSLwJyeo/export?format=xlsx",tmp)
-    cases<-readxl::read_xlsx(tmp,"Cases",skip=3) %>%
-      mutate(Date=as.Date(date_report),count=1) %>%
-      select(health_region,province,Date,count)
-    deaths<-readxl::read_xlsx(tmp,"Mortality",skip=3) %>%
-      mutate(Date=as.Date(date_death_report),count=1) %>%
-      select(health_region,province,Date,count)
-    recovered<-readxl::read_xlsx(tmp,"Recovered",skip=3) %>%
-      filter(!is.na(cumulative_recovered)) %>%
-      mutate(Date=as.Date(date_recovered),
-             count=as.integer(cumulative_recovered)) %>%
-      mutate(count=count-lag(count,order_by = Date,default = 0)) %>%
-      select(province,Date,count)
-
-    bind_rows(cases %>% mutate(type="Cases"),
-              deaths %>% mutate(type="Deaths"),
-              recovered %>% mutate(type="Recovered"))
+    bind_rows(get_canada_covid_working_group_cases() %>% mutate(type="Cases"),
+              get_canada_covid_working_group_deaths() %>% mutate(type="Deaths"),
+              get_canada_covid_working_group_recovered() %>% mutate(type="Recovered"))
 }
 
 
@@ -30,7 +36,7 @@ reverse_provincial_recodes <- setNames(names(provincial_recodes),as.vector(provi
 
 
 
-#' data from the covid-19 data working group
+#' data from the covid-19 data working group (https://github.com/ishaberry/Covid19Canada)
 #' @return dataframe with columns `Province`, `shortProvince`, `Date`,
 #' `Confirmed`, `Deaths`, `Recovered`, `Active`, where all counts are cumulative,
 #' @export
@@ -62,12 +68,13 @@ get_canada_covid_working_group_provincial_data <- function(){
 }
 
 
-#' data from the covid-19 data working group
+#' data from the covid-19 data working group (https://github.com/ishaberry/Covid19Canada)
 #' @return dataframe with columns `Health Region`, `Province`, `shortProvince`, `Date`,
 #' `Confirmed`, `Deaths`, where all counts are cumulative,
 #' @export
 get_canada_covid_working_group_health_region_data <- function(start_cutoff,cache_key,refresh=FALSE){
   data <- get_canada_covid_working_group_data() %>%
+    mutate(count=coalesce(count,0)) %>%
     filter(type %in% c('Cases','Deaths')) %>%
     group_by(province,health_region,Date,type) %>%
     summarize(count=n()) %>%
@@ -86,7 +93,7 @@ get_canada_covid_working_group_health_region_data <- function(start_cutoff,cache
     ungroup() %>%
     mutate(Province=recode(province,!!!reverse_provincial_recodes),
            shortProvince=recode(province,!!!provincial_recodes)) %>%
-    select(`Health Region`=health_region,Province,shortProvince,Date,Confirmed,Deaths)
+    select(`Health Region`=health_region,Province,shortProvince,Date,Confirmed,Deaths,Cases)
 }
 
 #' data from <a href="https://www.canada.ca/en/public-health/services/diseases/2019-novel-coronavirus-infection.html">Canada.ca</a>
@@ -104,7 +111,7 @@ get_canada_official_provincial_data <- function(){
            Confirmed=numtotal,`Offical confirmed`=numconf,Probable=numprob,Deaths=numdeaths,Cases=numtoday,Tested=numtested)
 }
 
-#' data from UofS
+#' data from UofS (https://covid19tracker.ca/)
 #' @return dataframe with columns `Province`, `shortProvince`, `Health Region`, `Date`, `Age`,
 #' `Travel history`, `Confirmed state`
 #' @export
@@ -118,7 +125,7 @@ get_canada_UofS_case_data <- function() {
            `Travel history`=travel_history,`Confirmed state`=confirmed_presumptive)
 }
 
-#' data from UofS
+#' data from UofS (https://covid19tracker.ca/)
 #' @return dataframe with columns `Province`, `shortProvince`, `Date`,
 #' `Confirmed`, `Offical confirmed`, `Probable`, `Cases`, where `Cases` is new daily cases and
 #' all other counts are cumulative. `Confirmed` is `Offical confirmed` plus `Probable` (postive tests which have not been confirmed at an official national or provincial lab)
@@ -127,22 +134,24 @@ get_canada_UofS_provincial_data <- function(){
   get_canada_UofS_case_data() %>%
     group_by(Date,Province,shortProvince,`Confirmed state`) %>%
     summarize(Cases=n()) %>%
+    bind_rows(group_by(.,Date,`Confirmed state`) %>%summarise(Cases=sum(Cases)) %>% mutate(Province="Canada",shortProvince="CAN")) %>%
+    ungroup %>%
     pivot_wider(id_cols=c("Date","Province","shortProvince"), names_from = `Confirmed state`, values_from = Cases) %>%
     mutate_at(c("CONFIRMED", "PRESUMPTIVE"),function(d)coalesce(d,0L)) %>%
     group_by(Province,shortProvince) %>%
     arrange(Date) %>%
     mutate(`Official confirmed`=cumsum(CONFIRMED),Probable=cumsum(PRESUMPTIVE)) %>%
-    bind_rows((.) %>% group_by(Date) %>%
-                summarize_at(c("Official confirmed","Probable"),sum) %>%
-                mutate(Province="Canada",shortProvince="CAN")) %>%
+    # bind_rows((.) %>% group_by(Date) %>%
+    #             summarize_at(c("Official confirmed","Probable"),sum) %>%
+    #             mutate(Province="Canada",shortProvince="CAN")) %>%
     mutate(Confirmed=`Official confirmed`+Probable) %>%
     group_by(Province) %>%
     mutate(Cases=Confirmed-lag(Confirmed,order_by = Date,default = 0)) %>%
     ungroup %>%
-    selectr(Province, shortProvince,Date,Confirmed,`Official confirmed`, Probable,Cases)
+    select(Province, shortProvince,Date,Confirmed,`Official confirmed`, Probable,Cases)
 }
 
-#' data from <a href="https://www.canada.ca/en/public-health/services/diseases/2019-novel-coronavirus-infection.html">Canada.ca</a>
+#' data from (https://covid19tracker.ca/)
 #' @return dataframe with columns `PR_UID`, `prname`, `prnameFR`, `shortProvince`, `Date`,
 #' `Confirmed`, `Probable`, `Total`, `Deaths`, `Cases`, `Tested` where `Cases` is new daily cases and
 #' all other counts are cumulative, `Total` is `Confirmed` pluis `Probable` (postive tests which have not been confirmed at an official national or provincial lab)
@@ -154,4 +163,35 @@ get_canada_UofS_health_region_data <- function(){
     group_by(health_region) %>%
     arrange(Date) %>%
     mutate(Confirmed=cumsum(Cases))
+}
+
+
+#' combined data from UofS, Canada.ca and Canada Covid-19 working group.
+#' @return dataframe with columns `shortProvince`, `Province`, `Date`,
+#' `Confirmed`, `Deaths`, `Cases`, `Recovered`, `Active`
+#' @export
+get_canada_combined_provincial_data <- function(){
+  od <- get_canada_official_provincial_data()
+  sd <- get_canada_UofS_provincial_data()
+  wd <- get_canada_covid_working_group_provincial_data()
+
+  sd %>%
+    select(shortProvince,Date,Confirmed) %>%
+    full_join(od %>% select(shortProvince,Date,Confirmed_o=Confirmed,Deaths), by=c("Date","shortProvince")) %>%
+    full_join(wd %>% select(shortProvince,Date,Confirmed_w=Confirmed,Deaths_w=Deaths,Recovered), by=c("Date","shortProvince")) %>%
+    group_by(shortProvince) %>%
+    arrange(Date) %>%
+    fill(Confirmed,.direction = "down") %>%
+    fill(Confirmed_w,.direction = "down") %>%
+    fill(Confirmed_o,.direction = "down") %>%
+    fill(Deaths,.direction = "down") %>%
+    fill(Deaths_w,.direction = "down") %>%
+    fill(Recovered,.direction = "down") %>%
+    mutate_at(c("Confirmed","Deaths","Deaths_w","Recovered","Confirmed_o","Confirmed_w"),
+              function(d)coalesce(as.integer(d),0L)) %>%
+    mutate(Cases=Confirmed-lag(Confirmed,order_by = Date,default = 0),
+           Active=Confirmed-Deaths-Recovered) %>%
+    mutate(Province=reverse_provincial_recodes[shortProvince]) %>%
+    ungroup() %>%
+    filter(Cases!=0)
 }
