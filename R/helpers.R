@@ -29,7 +29,30 @@ add_days_since <- function(data,start_cutoff){
     mutate(d=difftime(Date,firstDate,units="days") %>% as.integer)
 }
 
+#' compute rolling growth rates
+#' @param data data frame with columns `region`, `total` and `d` to compute rolling growth rates by region
+#' using the total variable at time steps d
+#' @param width of window for rolling fit
+#' @return the original data frame with added columns `slope` (growth rate), `slope_e` (standard error of growth rate fit),
+#' `low` and `high` (the 95% confidencit interval of the fit)
+#' @export
+compute_rolling_growth_rates <- function(data,window_width) {
+  compute_rolling_fit <- function(r){
+    reg<-roll::roll_lm(r$d,log(r$total),width=window_width,min_obs=window_width-1)
+    reg$coefficients %>%
+      as_tibble %>%
+      select(shift=`(Intercept)`,slope=x1) %>%
+      cbind(reg$std.error %>%
+              as_tibble %>%
+              select(shift_e=`(Intercept)`,slope_e=x1))
+  }
 
+  rr<-data %>%
+    group_by(region) %>%
+    arrange(d) %>%
+    do(cbind(select(.,-region),compute_rolling_fit(.))) %>%
+    mutate(low=slope-2*slope_e,high=slope+2*slope_e)
+}
 
 #' @keywords internal
 empty_plot = function()ggplot()+geom_text(aes(x=1,y=1),label="No data\nTry adjusting the start cutoff or metric.")+theme_void()

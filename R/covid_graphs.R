@@ -3,21 +3,10 @@
 #' @return a `ggplot` object
 #' @export
 growth_rate_graph <- function(data,window_width){
-  compute_rolling_fit <- function(r){
-    reg<-roll::roll_lm(r$d,log(r$total),width=window_width,min_obs=window_width-1)
-    reg$coefficients %>%
-      as_tibble %>%
-      select(shift=`(Intercept)`,slope=x1) %>%
-      cbind(reg$std.error %>%
-              as_tibble %>%
-              select(shift_e=`(Intercept)`,slope_e=x1))
-  }
+
 
   rr<-data %>%
-    group_by(region) %>%
-    arrange(d) %>%
-    do(cbind(select(.,-region),compute_rolling_fit(.))) %>%
-    mutate(low=slope-2*slope_e,high=slope+2*slope_e)  %>%
+    compute_rolling_growth_rates(window_width)  %>%
     filter(!is.na(slope))
 
 
