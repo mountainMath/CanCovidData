@@ -31,7 +31,10 @@ get_canada_covid_working_group_data <- function(){
 }
 
 
-provincial_recodes <- cansim:::short_prov.en
+provincial_recodes <- c(cansim:::short_prov.en,
+                        "Prince Edward Island"="PEI", # add non-standard province codes for Working Group data
+                        "Northwest Territories"="NWT",
+                        "Repatriated"="Repatriated")
 reverse_provincial_recodes <- setNames(names(provincial_recodes),as.vector(provincial_recodes))
 
 
@@ -63,7 +66,7 @@ get_canada_covid_working_group_provincial_data <- function(){
     ungroup() %>%
     mutate(Active=Confirmed-Deaths-Recovered) %>%
     mutate(Province=recode(province,!!!reverse_provincial_recodes),
-           shortProvince=recode(province,!!!provincial_recodes)) %>%
+           shortProvince=recode(Province,!!!provincial_recodes)) %>%
     select(-province)
 }
 
@@ -103,9 +106,10 @@ get_canada_covid_working_group_health_region_data <- function(start_cutoff,cache
 #' Tested is currently not populated, but hopefully will return data soon.
 #' @export
 get_canada_official_provincial_data <- function(){
-  simpleCache(readr::read_csv("https://health-infobase.canada.ca/src/data/covidLive/covid19.csv"),
-              "canada_official_data",tempdir()) %>%
+  readr::read_csv("https://health-infobase.canada.ca/src/data/covidLive/covid19.csv") %>%
     mutate(Date=as.Date(date,format="%d-%m-%Y")) %>%
+    mutate(prname=recode(prname,"Repatriated Travellers"="Repatriated",
+                         "Repatriated travellers"="Repatriated")) %>%
     mutate(shortProvince=recode(prname,!!!provincial_recodes)) %>%
     select(PR_UID=pruid,prname,prnameFR,shortProvince,Date,
            Confirmed=numtotal,`Offical confirmed`=numconf,Probable=numprob,Deaths=numdeaths,Cases=numtoday,Tested=numtested)
@@ -116,11 +120,11 @@ get_canada_official_provincial_data <- function(){
 #' `Travel history`, `Confirmed state`
 #' @export
 get_canada_UofS_case_data <- function() {
-    r<-httr::GET("https://covid19tracker.ca/dist/api/controller/cases.php")
-    data <- httr::content(r)$individualCases %>% purrr::map_df(as_tibble) %>%
+  r<-httr::GET("https://covid19tracker.ca/dist/api/controller/cases.php")
+  data <- httr::content(r)$individualCases %>% purrr::map_df(as_tibble) %>%
     mutate(Date=as.Date(date)) %>%
+    mutate(province=recode(province,"Repatriated Canadians"="Repatriated")) %>%
     mutate(shortProvince=recode(province,!!!provincial_recodes)) %>%
-    mutate(province=recode(province,"Repatriated Canadians"="Repatriated travellers")) %>%
     select(id,Date,Province=province,shortProvince,`Health region`=city,Age=age,
            `Travel history`=travel_history,`Confirmed state`=confirmed_presumptive)
 }
