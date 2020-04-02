@@ -176,13 +176,20 @@ get_canada_UofS_health_region_data <- function(){
 #' @export
 get_canada_combined_provincial_data <- function(){
   od <- get_canada_official_provincial_data()
-  sd <- get_canada_UofS_provincial_data()
+  #sd <- get_canada_UofS_provincial_data()
   wd <- get_canada_covid_working_group_provincial_data()
 
-  sd %>%
-    select(shortProvince,Date,Confirmed) %>%
+  # sd %>%
+  #   select(shortProvince,Date,Confirmed) %>%
+  #   full_join(od %>% select(shortProvince,Date,Confirmed_o=Confirmed,Deaths), by=c("Date","shortProvince")) %>%
+  #   select(shortProvince,Date,Confirmed) %>%
+  #   full_join(od %>% select(shortProvince,Date,Confirmed_o=Confirmed,Deaths), by=c("Date","shortProvince")) %>%
+  #   full_join(wd %>% select(shortProvince,Date,Confirmed_w=Confirmed,Deaths_w=Deaths,Recovered), by=c("Date","shortProvince")) %>%
+  wd %>%
+    select(shortProvince,Date,Confirmed,Recovered,Deaths_w=Deaths) %>%
+    mutate(Confirmed_w=Confirmed) %>%
     full_join(od %>% select(shortProvince,Date,Confirmed_o=Confirmed,Deaths), by=c("Date","shortProvince")) %>%
-    full_join(wd %>% select(shortProvince,Date,Confirmed_w=Confirmed,Deaths_w=Deaths,Recovered), by=c("Date","shortProvince")) %>%
+    #full_join(wd %>% select(shortProvince,Date,Confirmed_w=Confirmed,Deaths_w=Deaths,Recovered), by=c("Date","shortProvince")) %>%
     group_by(shortProvince) %>%
     arrange(Date) %>%
     fill(Confirmed,.direction = "down") %>%
