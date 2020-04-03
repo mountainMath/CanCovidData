@@ -205,3 +205,118 @@ get_canada_combined_provincial_data <- function(){
     ungroup() %>%
     filter(Cases!=0)
 }
+
+
+#' import and recode canadian case data from StatCan table 13-10-0767
+#' @return a wide format data frame with one row per case with gender, age group,
+#' hospitilization and ICU status, transmission pathway, mortality, and onset of symptoms data
+#' Data is limited to case information forwarded by provinces to Canada Health
+#' @export
+get_cansim_case_data <- function(){
+  data <- get_cansim("13-10-0767") %>%
+    normalize_cansim_values(factors = TRUE)
+
+  notes <- get_cansim_table_notes("13-10-0767")
+
+  covid_theme <- list(
+    theme_bw(),
+    labs(caption="MountainMath, StatCan table 13-10-0767")
+  )
+
+  hospitilization_recodes <- c(
+    "1"="Yes",
+    "2"="No",
+    "7"="Unknown",
+    "9"="Not Stated"
+  )
+
+  transmission_recodes <- c(
+    "1"= "Travel exposure",
+    "2" = "Community exposure",
+    "3" = "Pending"
+  )
+
+  status_recodes <- c(
+    "1" = "Deceased",
+    "9" = "Not stated"
+  )
+
+  age_recodes <- c(
+    "1" = "0 to 19 years",
+    "2" = "20 to 39 years",
+    "3" = "40 to 49 years",
+    "4" = "50 to 59 years",
+    "5" = "60 to 69 years",
+    "6" = "70 to 79 years",
+    "7" = "80 years or older",
+    "9" = "Not stated"
+  )
+
+  gender_recodes <- c(
+    "1" = "Male",
+    "2" = "Female",
+    "3" = "Other",
+    "7" = "Unknown",
+    "9" = "Not stated"
+  )
+
+  recode_field <- function(data,field,recodes){
+    data %>%
+      mutate(!!field:=recode(!!as.name(field),!!!recodes)) %>%
+      mutate(!!field:=factor(!!as.name(field),levels=recodes))
+  }
+
+
+  data %>%
+    select(REF_DATE,`Case identifier number`,`Case information`,VALUE) %>%
+    pivot_wider(id_cols = c("Case identifier number","REF_DATE"),
+                names_from = `Case information`,values_from = VALUE) %>%
+    mutate(Date=as.Date(paste0(REF_DATE,"-",`Episode date - month`,"-",`Episode date - day`))) %>%
+    mutate(Date2=as.Date(paste0(REF_DATE,"-",`Date case was last updated - month`,"-",`Date case was last updated - day`))) %>%
+    recode_field("Hospitalization",hospitilization_recodes) %>%
+    recode_field("Intensive care unit",hospitilization_recodes) %>%
+    recode_field("Transmission",transmission_recodes) %>%
+    recode_field("Status",status_recodes) %>%
+    recode_field("Age group",age_recodes) %>%
+    recode_field("Gender",gender_recodes)
+}
+
+#' import and recode ontario case data from Ontario Open Data. Tends to have a day lag
+#' @return a wide format data frame with one row per case with Health Region, gender, age group,
+#' transmission pathway, status, and onset of symptoms data
+#' Data is limited to case information forwarded by provinces to Canada Health
+#' @export
+get_ontario_case_data <- function(){
+  path="https://data.ontario.ca/datastore/dump/455fd63b-603d-4608-8216-7d8647f43350?format=csv"
+  ontario_data <- read_csv(path) %>% #, col_types = cols(.default="c")) %>%
+    st_as_sf(coords = c("Reporting_PHU_Longitude", "Reporting_PHU_Latitude"), crs = 4326, agr = "constant") %>%
+    mutate(Date=as.Date(ACCURATE_EPISODE_DATE))
+}
+
+#' get Health Region geographies
+#' @return a simple feature collection with 2018 Health Region data
+#' This misses at least one 2020 change to Ontario Health regoins
+#' @export
+get_health_region_geographies_2018 <- function(){
+  tmp=tempfile()
+  download.file("https://www150.statcan.gc.ca/n1/en/pub/82-402-x/2018001/data-donnees/boundary-limites/arcinfo/HR_000a18a-eng.zip?st=mOIAprjV",tmp)
+  f<-unzip(tmp,exdir = tempdir())
+  read_sf(f[grepl("\\.shp$",f)])
+}
+
+#' get Health Region level census data
+#' @return a long form dataframe with census data for health regions
+#' The health region geography used for this extract is different from the 2018 health regions
+#' as it misses at least one health region amalgamation in 2018 (and the one in 2020) in Ontario.
+#' @export
+get_health_region_census_2016_data <- function(refresh=FALSE){
+  path <- file.path(getOption("cache_path"),"health_regions_2016.csv")
+  if (refresh |!file.exists(path)){
+    tmp=tempfile()
+    download.file("https://www12.statcan.gc.ca/census-recensement/2016/dp-pd/prof/details/download-telecharger/comp/GetFile.cfm?Lang=E&FILETYPE=CSV&GEONO=058",tmp)
+    f<-unzip(tmp,exdir = tempdir())
+    file.copy(f[grepl("_data\\.csv$",f)],path)
+  }
+  read_csv(path,col_types = cols(.default = "c"))
+}
+

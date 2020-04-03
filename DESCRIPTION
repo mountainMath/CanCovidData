@@ -17,6 +17,8 @@ Imports:
     readr,
     lubridate,
     httr,
+    cansim,
+    sf,
     purrr,
     roll,
     scales,
