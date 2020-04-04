@@ -98,6 +98,7 @@ get_country_timeline_ecdc_jhs_data <- function(){
     ungroup
 }
 
+#' @importFrom utils unzip
 #' @import dplyr
 #' @import tidyr
 #' @import cansim

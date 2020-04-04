@@ -8,6 +8,8 @@ growth_rate_graph(data, window_width)
 }
 \arguments{
 \item{data}{data fram with colum `region` for each group, `Date` with dates and `total`, for fitting the growth rates}
+
+\item{window_width}{width for rolling window}
 }
 \value{
 a `ggplot` object

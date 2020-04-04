@@ -4,11 +4,7 @@
 \alias{get_canada_covid_working_group_health_region_data}
 \title{data from the covid-19 data working group (https://github.com/ishaberry/Covid19Canada)}
 \usage{
-get_canada_covid_working_group_health_region_data(
-  start_cutoff,
-  cache_key,
-  refresh = FALSE
-)
+get_canada_covid_working_group_health_region_data()
 }
 \value{
 dataframe with columns `Health Region`, `Province`, `shortProvince`, `Date`,

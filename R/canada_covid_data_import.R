@@ -75,7 +75,7 @@ get_canada_covid_working_group_provincial_data <- function(){
 #' @return dataframe with columns `Health Region`, `Province`, `shortProvince`, `Date`,
 #' `Confirmed`, `Deaths`, where all counts are cumulative,
 #' @export
-get_canada_covid_working_group_health_region_data <- function(start_cutoff,cache_key,refresh=FALSE){
+get_canada_covid_working_group_health_region_data <- function(){
   data <- get_canada_covid_working_group_data() %>%
     mutate(count=coalesce(count,0)) %>%
     filter(type %in% c('Cases','Deaths')) %>%
@@ -162,9 +162,9 @@ get_canada_UofS_provincial_data <- function(){
 #' @export
 get_canada_UofS_health_region_data <- function(){
   get_canada_UofS_case_data() %>%
-    group_by(Date,health_region) %>%
+    group_by(Date,`Health region`) %>%
     summarize(Cases=n()) %>%
-    group_by(health_region) %>%
+    group_by(`Health region`) %>%
     arrange(Date) %>%
     mutate(Confirmed=cumsum(Cases))
 }
@@ -293,6 +293,22 @@ get_ontario_case_data <- function(){
     mutate(Date=as.Date(ACCURATE_EPISODE_DATE))
 }
 
+province_name_lookup <- c(
+  "35" = "Ontario",
+  "24" = "Quebec",
+  "59" = "British Columbia",
+  "48" = "Alberta",
+  "46" = "Manitoba",
+  "47" = "Saskatchewan",
+  "12" = "Nova Scotia",
+  "13" = "New Brunswick",
+  "10" = "Newfoundland and Labrador",
+  "11" = "Prince Edward Island",
+  "61" = "Northwest Territories",
+  "62" = "Nunavut",
+  "60" = "Yukon"
+  )
+
 #' get Health Region geographies
 #' @return a simple feature collection with 2018 Health Region data
 #' This misses at least one 2020 change to Ontario Health regoins
@@ -301,10 +317,16 @@ get_health_region_geographies_2018 <- function(){
   tmp=tempfile()
   download.file("https://www150.statcan.gc.ca/n1/en/pub/82-402-x/2018001/data-donnees/boundary-limites/arcinfo/HR_000a18a-eng.zip?st=mOIAprjV",tmp)
   f<-unzip(tmp,exdir = tempdir())
-  read_sf(f[grepl("\\.shp$",f)])
+  read_sf(f[grepl("\\.shp$",f)]) %>%
+    mutate(Name=ENGNAME, GeoUID = HR_UID) %>%
+    mutate(PR_UID=substr(HR_UID,1,2)) %>%
+    mutate(PR_NAME=province_name_lookup[PR_UID])
 }
 
+
+
 #' get Health Region level census data
+#' @param refresh set to `TRUE` to refresh locally cached data
 #' @return a long form dataframe with census data for health regions
 #' The health region geography used for this extract is different from the 2018 health regions
 #' as it misses at least one health region amalgamation in 2018 (and the one in 2020) in Ontario.
@@ -320,3 +342,71 @@ get_health_region_census_2016_data <- function(refresh=FALSE){
   read_csv(path,col_types = cols(.default = "c"))
 }
 
+
+bc_ha_name_lookup <- c(
+  "591" = "Interior",
+  "592" = "Fraser",
+  "593" = "Vancouver Coastal",
+  "594" = "Vancouver Island",
+  "595" = "Northern"
+)
+
+#' aggregate health regions to health autorities in BC
+#' @param data dataframe with fields `GeoUID` = HR_UID and `Name`
+#' @return a dataframe with GeoUID and Name adjusted to BC Helath Authorities instead of Health Regions
+replace_BC_health_region_geocodes <- function(data) {
+  data %>%
+    mutate(GeoUID = ifelse(grepl("^59",GeoUID),substr(GeoUID,1,3),GeoUID)) %>%
+    mutate(Name=ifelse(GeoUID %in% names(bc_ha_name_lookup),recode(GeoUID,!!!bc_ha_name_lookup),Name))
+}
+
+ontario_hr_name_lookup <- c(
+  "3554" = "Southwestern Public Health",
+  "35xx" = "Huron Perth District Health Unit"
+)
+
+
+
+#' aggregate health regions to health autorities in ON
+#' @param data dataframe with fields `GeoUID` = HR_UID and `Name`
+#' @return a dataframe with GeoUID and Name adjusted to current names
+replace_ON_health_region_geocodes <- function(data){
+  data %>%
+    mutate(GeoUID=ifelse(GeoUID %in% c("3531","3552"), "3575",GeoUID)) %>%
+    mutate(GeoUID=ifelse(GeoUID %in% c("3554","3539"), "35xx",GeoUID)) %>%
+    mutate(Name=ifelse(GeoUID %in% names(ontario_hr_name_lookup),recode(GeoUID,!!!ontario_hr_name_lookup),Name))
+}
+
+
+saskatoon_hr_name_lookup <- c(
+  "47x1" = "South",
+  "47x2" = "Central",
+  "47x3" = "North",
+  "47x4" = "Far North",
+  "4704" = "Regiona",
+  "4706" = "Saskatoon"
+)
+
+#' aggregate health regions to health autorities in SK
+#' @param data dataframe with fields `GeoUID` = HR_UID and `Name`
+#' @return a dataframe with GeoUID and Name adjusted to current names
+replace_SK_health_region_geocodes <- function(data){
+  data %>%
+    mutate(GeoUID=ifelse(GeoUID %in% c("4701","4702","4703"), "47x1",GeoUID)) %>%
+    mutate(GeoUID=ifelse(GeoUID %in% c("4705","4707"), "47x2",GeoUID)) %>%
+    mutate(GeoUID=ifelse(GeoUID %in% c("4708","4709","4710"), "47x3",GeoUID)) %>%
+    mutate(GeoUID=ifelse(GeoUID %in% c("4711","4712","4713"), "47x4",GeoUID)) %>%
+    mutate(Name=ifelse(GeoUID %in% names(saskatoon_hr_name_lookup),recode(GeoUID,!!!saskatoon_hr_name_lookup),Name))
+}
+
+
+#' aggregate health regions to health autorities BC, SK, ON
+#' @param data dataframe with fields `GeoUID` = HR_UID and `Name`
+#' @return a dataframe with GeoUID and Name adjusted to current names
+#' @export
+replace_all_health_region_geocodes <- function(data) {
+  data %>%
+    replace_BC_health_region_geocodes() %>%
+    replace_ON_health_region_geocodes() %>%
+    replace_SK_health_region_geocodes()
+}

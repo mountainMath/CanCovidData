@@ -8,6 +8,8 @@ add_days_since(data, start_cutoff)
 }
 \arguments{
 \item{data}{data frame with `region`, `Date` and `total` columns}
+
+\item{start_cutoff}{minimum number of total from which to start counting days}
 }
 \value{
 data fram with extra column `d` with days since `total` reached `start_cutoff`

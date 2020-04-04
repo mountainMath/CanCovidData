@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>get Health Region level census data — get_health_region_census_2016_data • CanCovidData</title>
+<title>aggregate health regions to health autorities in ON — replace_ontario_health_region_geocodes • CanCovidData</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -34,9 +34,9 @@
 
   <link href="../extra.css" rel="stylesheet">
   
-<meta property="og:title" content="get Health Region level census data — get_health_region_census_2016_data" />
+<meta property="og:title" content="aggregate health regions to health autorities in ON — replace_ontario_health_region_geocodes" />
 
-<meta property="og:description" content="get Health Region level census data" />
+<meta property="og:description" content="aggregate health regions to health autorities in ON" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -117,33 +117,31 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>get Health Region level census data</h1>
+    <h1>aggregate health regions to health autorities in ON</h1>
     <small class="dont-index">Source: <a href='https://github.com/mountainMath/CanCovidData/blob/master/R/canada_covid_data_import.R'><code>R/canada_covid_data_import.R</code></a></small>
-    <div class="hidden name"><code>get_health_region_census_2016_data.Rd</code></div>
+    <div class="hidden name"><code>replace_ontario_health_region_geocodes.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>get Health Region level census data</p>
+    <p>aggregate health regions to health autorities in ON</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>get_health_region_census_2016_data</span>(<span class='kw'>refresh</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='fu'>replace_ontario_health_region_geocodes</span>(<span class='no'>data</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>refresh</th>
-      <td><p>set to `TRUE` to refresh locally cached data</p></td>
+      <th>data</th>
+      <td><p>dataframe with fields `HR_UID` and `Name`</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>a long form dataframe with census data for health regions
-The health region geography used for this extract is different from the 2018 health regions
-as it misses at least one health region amalgamation in 2018 (and the one in 2020) in Ontario.</p>
+    <p>a dataframe with HR_UID and Name adjusted to current names</p>
     
 
   </div>

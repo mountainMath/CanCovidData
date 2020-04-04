@@ -6,6 +6,9 @@
 \usage{
 get_health_region_census_2016_data(refresh = FALSE)
 }
+\arguments{
+\item{refresh}{set to `TRUE` to refresh locally cached data}
+}
 \value{
 a long form dataframe with census data for health regions
 The health region geography used for this extract is different from the 2018 health regions

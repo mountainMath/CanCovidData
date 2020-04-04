@@ -10,7 +10,7 @@ compute_rolling_growth_rates(data, window_width)
 \item{data}{data frame with columns `region`, `total` and `d` to compute rolling growth rates by region
 using the total variable at time steps d}
 
-\item{width}{of window for rolling fit}
+\item{window_width}{of window for rolling fit}
 }
 \value{
 the original data frame with added columns `slope` (growth rate), `slope_e` (standard error of growth rate fit),

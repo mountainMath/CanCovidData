@@ -17,7 +17,7 @@ simpleCache <- function(object,key,path=getOption("custom_data_path"),refresh=FA
 
 #' Helper function
 #' @param data data frame with `region`, `Date` and `total` columns
-#' @param start_cutoff
+#' @param start_cutoff minimum number of total from which to start counting days
 #' @return data fram with extra column `d` with days since `total` reached `start_cutoff`
 #' @export
 add_days_since <- function(data,start_cutoff){
@@ -32,7 +32,7 @@ add_days_since <- function(data,start_cutoff){
 #' compute rolling growth rates
 #' @param data data frame with columns `region`, `total` and `d` to compute rolling growth rates by region
 #' using the total variable at time steps d
-#' @param width of window for rolling fit
+#' @param window_width of window for rolling fit
 #' @return the original data frame with added columns `slope` (growth rate), `slope_e` (standard error of growth rate fit),
 #' `low` and `high` (the 95% confidencit interval of the fit)
 #' @export
