@@ -19,6 +19,26 @@ get_canada_covid_working_group_recovered <- function(){
     ungroup
 }
 
+#' Get data on testing in Canada
+#' @return tibble with number of tests by province and data
+#' @export
+get_canada_covid_working_group_tests <- function(){
+  read_csv("https://github.com/ishaberry/Covid19Canada/raw/master/testing_cumulative.csv") %>%
+    filter(!is.na(cumulative_testing)) %>%
+    mutate(cumulative_testing=gsub("[^0-9.]","",cumulative_testing)) %>%
+    mutate(Date=as.Date(date_testing,format="%d-%m-%Y"),
+           Tests=as.integer(cumulative_testing)) %>%
+    group_by(province) %>%
+    arrange(Date) %>%
+    filter(!duplicated(Tests)) %>%
+    mutate(Increase=Tests-lag(Tests,order_by = Date,default = 0)) %>%
+    select(province,Date,Tests,Increase) %>%
+    ungroup %>%
+    mutate(Province=recode(province,!!!reverse_provincial_recodes),
+           shortProvince=recode(Province,!!!provincial_recodes)) %>%
+    select(-province)
+}
+
 #' data from the covid-19 data working group (https://github.com/ishaberry/Covid19Canada)
 #' @return dataframe with columns `province`, `health_region`, `Date`, `type`, `count`
 #' `type` is "Cases", "Deaths", "Recovered". All are new daily cases

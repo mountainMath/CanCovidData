@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>data from the covid-19 data working group (https://github.com/ishaberry/Covid19Canada) — get_canada_covid_working_group_data • CanCovidData</title>
+<title>Get data on testing in Canada — get_canada_covid_working_group_tests • CanCovidData</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -34,9 +34,9 @@
 
   <link href="../extra.css" rel="stylesheet">
   
-<meta property="og:title" content="data from the covid-19 data working group (https://github.com/ishaberry/Covid19Canada) — get_canada_covid_working_group_data" />
+<meta property="og:title" content="Get data on testing in Canada — get_canada_covid_working_group_tests" />
 
-<meta property="og:description" content="data from the covid-19 data working group (https://github.com/ishaberry/Covid19Canada)" />
+<meta property="og:description" content="Get data on testing in Canada" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -120,24 +120,22 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>data from the covid-19 data working group (https://github.com/ishaberry/Covid19Canada)</h1>
+    <h1>Get data on testing in Canada</h1>
     <small class="dont-index">Source: <a href='https://github.com/mountainMath/CanCovidData/blob/master/R/canada_covid_data_import.R'><code>R/canada_covid_data_import.R</code></a></small>
-    <div class="hidden name"><code>get_canada_covid_working_group_data.Rd</code></div>
+    <div class="hidden name"><code>get_canada_covid_working_group_tests.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>data from the covid-19 data working group (https://github.com/ishaberry/Covid19Canada)</p>
+    <p>Get data on testing in Canada</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>get_canada_covid_working_group_data</span>()</pre>
+    <pre class="usage"><span class='fu'>get_canada_covid_working_group_tests</span>()</pre>
         
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>dataframe with columns `province`, `health_region`, `Date`, `type`, `count`
-`type` is "Cases", "Deaths", "Recovered". All are new daily cases
-and Recovered is cumulative recovered cases.</p>
+    <p>tibble with number of tests by province and data</p>
     
 
   </div>

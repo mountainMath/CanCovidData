@@ -1,0 +1,53 @@
+---
+title: "Testing"
+author: "Jens von Bergmann"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{testing}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+library(CanCovidData)
+library(dplyr)
+library(ggplot2)
+```
+
+
+
+```{r}
+test_data <- get_canada_covid_working_group_tests()
+
+ggplot(test_data,aes(x=Date,y=Tests,color=shortProvince)) +
+  geom_line() +
+  geom_point() +
+  scale_y_continuous(labels=scales::comma) +
+  labs(title="COVID-19 tests",x=NULL,y="Cumulative number of tests",fill="Province",
+       caption="Data: COVID-19 Canada Open Data Working Group")
+```
+
+```{r}
+case_data <- get_canada_covid_working_group_provincial_data()
+```
+
+```{r}
+inner_join(case_data,test_data,by=c("shortProvince","Province","Date")) %>%
+  mutate(`Share positive`=Confirmed/Tests) %>%
+  ggplot(aes(x=Date,y=`Share positive`,color=shortProvince)) +
+  geom_line() +
+  geom_point() +
+  scale_y_continuous(labels=scales::percent) +
+  labs(title="COVID-19 tests vs confirmed cases",x=NULL,colour="Province",
+       caption="Data: COVID-19 Canada Open Data Working Group")
+```
+
+
