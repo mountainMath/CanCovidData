@@ -100,12 +100,15 @@
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(CanCovidData)</a>
 <a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(dplyr)</a>
 <a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(ggplot2)</a></code></pre></div>
+<div id="download-international-country-timelines-" class="section level2">
+<h2 class="hasAnchor">
+<a href="#download-international-country-timelines-" class="anchor"></a>Download international country timelines.</h2>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">country_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/get_country_timeline_ecdc_jhs_data.html">get_country_timeline_ecdc_jhs_data</a></span>()</a></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">case_text_lookup &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(</a>
 <a class="sourceLine" id="cb3-2" data-line-number="2">    <span class="st">"Confirmed"</span> =<span class="st"> "confirmed cases"</span>,</a>
 <a class="sourceLine" id="cb3-3" data-line-number="3">    <span class="st">"Deaths"</span> =<span class="st"> "deaths"</span>,</a>
 <a class="sourceLine" id="cb3-4" data-line-number="4">    <span class="st">"Active"</span> =<span class="st"> "active confirmed cases"</span></a>
-<a class="sourceLine" id="cb3-5" data-line-number="5">)</a>
+<a class="sourceLine" id="cb3-5" data-line-number="5">) </a>
 <a class="sourceLine" id="cb3-6" data-line-number="6"></a>
 <a class="sourceLine" id="cb3-7" data-line-number="7">country_base_colours &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/stats/setNames.html">setNames</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"black"</span>,RColorBrewer<span class="op">::</span><span class="kw"><a href="https://rdrr.io/pkg/RColorBrewer/man/ColorBrewer.html">brewer.pal</a></span>(<span class="dv">8</span>,<span class="st">"Dark2"</span>)),</a>
 <a class="sourceLine" id="cb3-8" data-line-number="8">                                 <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Canada"</span>,</a>
@@ -117,6 +120,10 @@
 <a class="sourceLine" id="cb3-14" data-line-number="14">                                   <span class="st">"Spain"</span>,</a>
 <a class="sourceLine" id="cb3-15" data-line-number="15">                                   <span class="st">"Switzerland"</span>,</a>
 <a class="sourceLine" id="cb3-16" data-line-number="16">                                   <span class="st">"South Korea"</span>))</a></code></pre></div>
+</div>
+<div id="simple-growth-rate-graph" class="section level2">
+<h2 class="hasAnchor">
+<a href="#simple-growth-rate-graph" class="anchor"></a>Simple growth rate graph</h2>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">start_cutoff &lt;-<span class="st"> </span><span class="dv">100</span></a>
 <a class="sourceLine" id="cb4-2" data-line-number="2">window_width &lt;-<span class="st"> </span><span class="dv">7</span></a>
 <a class="sourceLine" id="cb4-3" data-line-number="3">metric &lt;-<span class="st"> "Confirmed"</span></a>
@@ -135,6 +142,10 @@
 <a class="sourceLine" id="cb4-16" data-line-number="16">       <span class="dt">x=</span><span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="st">"Days after "</span>,start_cutoff,<span class="st">" "</span>,case_text,<span class="st">" in rolling window"</span>),</a>
 <a class="sourceLine" id="cb4-17" data-line-number="17">       <span class="dt">caption=</span><span class="st">"MountainMath, Data ECDC, JHS"</span>) </a></code></pre></div>
 <p><img src="rolling_growth_rates_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
+</div>
+<div id="simple-log-plot-of-cases" class="section level2">
+<h2 class="hasAnchor">
+<a href="#simple-log-plot-of-cases" class="anchor"></a>Simple log-plot of cases</h2>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">start_cutoff=<span class="dv">100</span></a>
 <a class="sourceLine" id="cb5-2" data-line-number="2">metric=<span class="st">"Confirmed"</span></a>
 <a class="sourceLine" id="cb5-3" data-line-number="3">case_text &lt;-<span class="st"> </span>case_text_lookup[metric]</a>
@@ -154,6 +165,10 @@
 <a class="sourceLine" id="cb5-17" data-line-number="17">       <span class="dt">y=</span><span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="st">"Number of "</span>,case_text,<span class="st">" (log scale)"</span>),</a>
 <a class="sourceLine" id="cb5-18" data-line-number="18">       <span class="dt">caption=</span><span class="st">"MountainMath, Data: ECDC, JHS"</span>) </a></code></pre></div>
 <p><img src="rolling_growth_rates_files/figure-html/unnamed-chunk-5-1.png" width="700"></p>
+</div>
+<div id="simple-log-plot-of-cases-for-provinces" class="section level2">
+<h2 class="hasAnchor">
+<a href="#simple-log-plot-of-cases-for-provinces" class="anchor"></a>Simple log-plot of cases for provinces</h2>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">provincial_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/get_canada_official_provincial_data.html">get_canada_official_provincial_data</a></span>() </a>
 <a class="sourceLine" id="cb6-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb6-3" data-line-number="3">provincial_data <span class="op">%&gt;%</span></a>
@@ -172,9 +187,20 @@
 <a class="sourceLine" id="cb6-16" data-line-number="16">       <span class="dt">y=</span><span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="st">"Number of "</span>,case_text,<span class="st">" (log scale)"</span>),</a>
 <a class="sourceLine" id="cb6-17" data-line-number="17">       <span class="dt">caption=</span><span class="st">"MountainMath, Data: Canada.ca"</span>) </a></code></pre></div>
 <p><img src="rolling_growth_rates_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
+</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+        <div id="tocnav">
+      <h2 class="hasAnchor">
+<a href="#tocnav" class="anchor"></a>Contents</h2>
+      <ul class="nav nav-pills nav-stacked">
+<li><a href="#download-international-country-timelines-">Download international country timelines.</a></li>
+      <li><a href="#simple-growth-rate-graph">Simple growth rate graph</a></li>
+      <li><a href="#simple-log-plot-of-cases">Simple log-plot of cases</a></li>
+      <li><a href="#simple-log-plot-of-cases-for-provinces">Simple log-plot of cases for provinces</a></li>
+      </ul>
+</div>
       </div>
 
 </div>
