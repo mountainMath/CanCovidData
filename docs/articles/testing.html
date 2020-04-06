@@ -55,6 +55,9 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="../articles/age_sex.html">Age and sex</a>
+    </li>
+    <li>
       <a href="../articles/rolling_growth_rates.html">Rolling growth rates</a>
     </li>
     <li>
@@ -112,7 +115,7 @@
 <a class="sourceLine" id="cb2-4" data-line-number="4"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span>() <span class="op">+</span></a>
 <a class="sourceLine" id="cb2-5" data-line-number="5"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span>() <span class="op">+</span></a>
 <a class="sourceLine" id="cb2-6" data-line-number="6"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_y_continuous</a></span>(<span class="dt">labels=</span>scales<span class="op">::</span>comma) <span class="op">+</span></a>
-<a class="sourceLine" id="cb2-7" data-line-number="7"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span>(<span class="dt">title=</span><span class="st">"COVID-19 tests"</span>,<span class="dt">x=</span><span class="ot">NULL</span>,<span class="dt">y=</span><span class="st">"Cumulative number of tests"</span>,<span class="dt">fill=</span><span class="st">"Province"</span>,</a>
+<a class="sourceLine" id="cb2-7" data-line-number="7"><span class="st">  </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span>(<span class="dt">title=</span><span class="st">"COVID-19 tests"</span>,<span class="dt">x=</span><span class="ot">NULL</span>,<span class="dt">y=</span><span class="st">"Cumulative number of tests"</span>,<span class="dt">color=</span><span class="st">"Province"</span>,</a>
 <a class="sourceLine" id="cb2-8" data-line-number="8">       <span class="dt">caption=</span><span class="st">"Data: COVID-19 Canada Open Data Working Group"</span>)</a></code></pre></div>
 <p><img src="testing_files/figure-html/unnamed-chunk-2-1.png" width="700"></p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">case_data &lt;-<span class="st"> </span><span class="kw"><a href="../reference/get_canada_covid_working_group_provincial_data.html">get_canada_covid_working_group_provincial_data</a></span>()</a></code></pre></div>

@@ -31,7 +31,7 @@ ggplot(test_data,aes(x=Date,y=Tests,color=shortProvince)) +
   geom_line() +
   geom_point() +
   scale_y_continuous(labels=scales::comma) +
-  labs(title="COVID-19 tests",x=NULL,y="Cumulative number of tests",fill="Province",
+  labs(title="COVID-19 tests",x=NULL,y="Cumulative number of tests",color="Province",
        caption="Data: COVID-19 Canada Open Data Working Group")
 ```
 

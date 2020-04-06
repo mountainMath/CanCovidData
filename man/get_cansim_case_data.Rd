@@ -2,7 +2,7 @@
 % Please edit documentation in R/canada_covid_data_import.R
 \name{get_cansim_case_data}
 \alias{get_cansim_case_data}
-\title{import and recode canadian case data from StatCan table 13-10-0767}
+\title{import and recode canadian case data from StatCan table 13-10-0766}
 \usage{
 get_cansim_case_data()
 }
@@ -12,5 +12,5 @@ hospitilization and ICU status, transmission pathway, mortality, and onset of sy
 Data is limited to case information forwarded by provinces to Canada Health
 }
 \description{
-import and recode canadian case data from StatCan table 13-10-0767
+import and recode canadian case data from StatCan table 13-10-0766
 }

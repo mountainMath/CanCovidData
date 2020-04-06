@@ -2,7 +2,7 @@
 % Please edit documentation in R/canada_covid_data_import.R
 \name{get_canada_covid_working_group_tests}
 \alias{get_canada_covid_working_group_tests}
-\title{Get data on testing in Canada}
+\title{Get data on testing in Canada from the covid-19 data working group}
 \usage{
 get_canada_covid_working_group_tests()
 }
@@ -10,5 +10,5 @@ get_canada_covid_working_group_tests()
 tibble with number of tests by province and data
 }
 \description{
-Get data on testing in Canada
+Get data on testing in Canada from the covid-19 data working group
 }

@@ -19,6 +19,7 @@ Imports:
     httr,
     cansim,
     sf,
+    stringr,
     purrr,
     roll,
     scales,

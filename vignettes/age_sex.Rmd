@@ -1,0 +1,34 @@
+---
+title: "Age and sex"
+author: "Jens von Bergmann"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{age_sex}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(CanCovidData)
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
+case_data <- get_cansim_case_data()
+
+ggplot(case_data,aes(x=`Age group`,fill=Sex)) +
+  geom_bar() +
+  labs(title="Cases with age or sex information",
+       y="Number of cases",
+       caption="Data: StatCan table 13-10-0766") +
+  coord_flip()
+```
+

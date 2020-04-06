@@ -5,6 +5,10 @@ pkgdown_sha: ~
 articles:
   - title: "Example data import and graphs"
     contents: rolling_growth_rates
+  - title: "Accessing testing data"
+    contents: testing
+  - title: "Example using age and sex data"
+    contents: age_sex
 authors:
   Jens von Bergmann:
     href: https://mountainmath.ca

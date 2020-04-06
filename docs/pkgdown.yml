@@ -2,6 +2,7 @@ pandoc: 2.3.1
 pkgdown: 1.4.1
 pkgdown_sha: ~
 articles:
+  age_sex: age_sex.html
   rolling_growth_rates: rolling_growth_rates.html
   testing: testing.html
 

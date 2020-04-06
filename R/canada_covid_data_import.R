@@ -1,25 +1,33 @@
+#' Get confirmed case data from the covid-19 data working group
+#' @return tibble with case data
+#' @export
 get_canada_covid_working_group_cases <- function(){
   read_csv("https://github.com/ishaberry/Covid19Canada/raw/master/cases.csv") %>%
-    mutate(Date=as.Date(date_report,format="%d-%m-%Y"),count=1) %>%
-    select(health_region,province,Date,count)
+    mutate(Date=as.Date(date_report,format="%d-%m-%Y"),count=1)
 }
+
+#' Get deaths data from the covid-19 data working group
+#' @return tibble with deaths
+#' @export
 get_canada_covid_working_group_deaths <- function(){
   read_csv("https://github.com/ishaberry/Covid19Canada/raw/master/mortality.csv") %>%
-    mutate(Date=as.Date(date_death_report,format="%d-%m-%Y"),count=1) %>%
-    select(health_region,province,Date,count)
+    mutate(Date=as.Date(date_death_report,format="%d-%m-%Y"),count=1)
 }
+
+#' Get recovered case data from the covid-19 data working group
+#' @return tibble with recovered case data
+#' @export
 get_canada_covid_working_group_recovered <- function(){
   read_csv("https://github.com/ishaberry/Covid19Canada/raw/master/recovered_cumulative.csv") %>%
     filter(!is.na(cumulative_recovered)) %>%
     mutate(Date=as.Date(date_recovered,format="%d-%m-%Y"),
-           cr=as.integer(cumulative_recovered)) %>%
+           CumulativeRecovered=as.integer(cumulative_recovered)) %>%
     group_by(province) %>%
-    mutate(Recovered=cr-lag(cr,order_by = Date,default = 0)) %>%
-    select(province,Date,count=Recovered) %>%
+    mutate(count=CumulativeRecovered-lag(CumulativeRecovered,order_by = Date,default = 0)) %>%
     ungroup
 }
 
-#' Get data on testing in Canada
+#' Get data on testing in Canada from the covid-19 data working group
 #' @return tibble with number of tests by province and data
 #' @export
 get_canada_covid_working_group_tests <- function(){
@@ -47,7 +55,8 @@ get_canada_covid_working_group_tests <- function(){
 get_canada_covid_working_group_data <- function(){
     bind_rows(get_canada_covid_working_group_cases() %>% mutate(type="Cases"),
               get_canada_covid_working_group_deaths() %>% mutate(type="Deaths"),
-              get_canada_covid_working_group_recovered() %>% mutate(type="Recovered"))
+              get_canada_covid_working_group_recovered() %>% mutate(type="Recovered")) %>%
+    select(health_region,province,Date,type,count)
 }
 
 
@@ -226,22 +235,92 @@ get_canada_combined_provincial_data <- function(){
     filter(Cases!=0)
 }
 
-
-#' import and recode canadian case data from StatCan table 13-10-0767
+#' import and recode canadian case data from StatCan table 13-10-0766
 #' @return a wide format data frame with one row per case with gender, age group,
 #' hospitilization and ICU status, transmission pathway, mortality, and onset of symptoms data
 #' Data is limited to case information forwarded by provinces to Canada Health
 #' @export
 get_cansim_case_data <- function(){
-  data <- get_cansim("13-10-0767") %>%
-    normalize_cansim_values(factors = TRUE)
+  data <- suppressWarnings(get_cansim("13-10-0766")) %>%
+    mutate(GEO=gsub("^Canada .+$","Canada",GEO)) %>%
+    normalize_cansim_values()
 
-  notes <- get_cansim_table_notes("13-10-0767")
-
-  covid_theme <- list(
-    theme_bw(),
-    labs(caption="MountainMath, StatCan table 13-10-0767")
+  hospitilization_recodes <- c(
+    "1"="Yes",
+    "2"="No",
+    "9"="Not Stated"
   )
+
+  transmission_recodes <- c(
+    "1"= "Travel exposure",
+    "2" = "Community exposure",
+    "3" = "Pending"
+  )
+
+  death_recodes <- c(
+    "1" = "Yes",
+    "2" = "No",
+    "9" = "Not stated"
+  )
+
+  age_recodes <- c(
+    "1" = "0 to 19 years",
+    "2" = "20 to 29 years",
+    "3" = "30 to 39 years",
+    "4" = "40 to 49 years",
+    "5" = "50 to 59 years",
+    "6" = "60 to 69 years",
+    "7" = "70 to 79 years",
+    "8" = "80 years or older",
+    "99" = "Not stated"
+  )
+
+  sex_recodes <- c(
+    "1" = "Male",
+    "2" = "Female",
+    "9" = "Not stated"
+  )
+
+  recode_field <- function(data,field,recodes){
+    data %>%
+      mutate(!!field:=recode(!!as.name(field),!!!recodes)) %>%
+      mutate(!!field:=factor(!!as.name(field),levels=recodes))
+  }
+
+  paste_date <- function(year,month,day) {
+    ifelse(day==99 | month==99,NA,
+           paste0(year,
+                  "-",
+                  str_pad(month,width=2,side="left",pad=0),
+                  "-",
+                  str_pad(day,width=2,side="left",pad=0))) %>%
+      as.Date()
+  }
+
+  data %>%
+    select(REF_DATE,`Case identifier number`,`Case information`,VALUE) %>%
+    pivot_wider(id_cols = c("Case identifier number","REF_DATE"),
+                names_from = `Case information`,values_from = VALUE) %>%
+    mutate(Date=paste_date(REF_DATE,`Episode date - month`,`Episode date - day`)) %>%
+    mutate(Date2=paste_date(REF_DATE,`Date case was last updated - month`,`Date case was last updated - day`)) %>%
+    recode_field("Hospitalization",hospitilization_recodes) %>%
+    recode_field("Intensive care unit",hospitilization_recodes) %>%
+    recode_field("Transmission",transmission_recodes) %>%
+    recode_field("Death",death_recodes) %>%
+    recode_field("Age group",age_recodes) %>%
+    recode_field("Sex",sex_recodes)
+}
+
+
+#' import and recode canadian case data from StatCan table 13-10-0767, use `get_cansim_case_data`
+#' for getting data from the more up-to-date table 13-10-0766
+#' @return a wide format data frame with one row per case with gender, age group,
+#' hospitilization and ICU status, transmission pathway, mortality, and onset of symptoms data
+#' Data is limited to case information forwarded by provinces to Canada Health
+#' @export
+get_cansim_old_case_data <- function(){
+  data <- get_cansim("13-10-0767") %>%
+    normalize_cansim_values()
 
   hospitilization_recodes <- c(
     "1"="Yes",
