@@ -8,10 +8,12 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r message=FALSE, warning=FALSE}
+```{r, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  message=FALSE, 
+  warning=FALSE
 )
 ```
 
@@ -26,7 +28,8 @@ case_data <- get_cansim_case_data()
 
 ggplot(case_data,aes(x=`Age group`,fill=Sex)) +
   geom_bar() +
-  labs(title="Cases with age or sex information",
+  labs(title=paste0("Cases with age or sex information as of ",
+                    max(case_data$Date2), " (n=",scales::comma(nrow(case_data)),")"),
        y="Number of cases",
        caption="Data: StatCan table 13-10-0766") +
   coord_flip()
