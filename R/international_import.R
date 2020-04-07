@@ -102,6 +102,7 @@ get_country_timeline_ecdc_jhs_data <- function(){
 #' @import dplyr
 #' @import tidyr
 #' @import cansim
+#' @importFrom stats setNames
 #' @importFrom stringr str_pad
 #' @importFrom sf st_as_sf
 #' @importFrom sf read_sf

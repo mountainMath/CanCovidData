@@ -9,7 +9,6 @@ get_ontario_case_data()
 \value{
 a wide format data frame with one row per case with Health Region, gender, age group,
 transmission pathway, status, and onset of symptoms data
-Data is limited to case information forwarded by provinces to Canada Health
 }
 \description{
 import and recode ontario case data from Ontario Open Data. Tends to have a day lag

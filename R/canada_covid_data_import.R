@@ -383,7 +383,6 @@ get_cansim_old_case_data <- function(){
 #' import and recode ontario case data from Ontario Open Data. Tends to have a day lag
 #' @return a wide format data frame with one row per case with Health Region, gender, age group,
 #' transmission pathway, status, and onset of symptoms data
-#' Data is limited to case information forwarded by provinces to Canada Health
 #' @export
 get_ontario_case_data <- function(){
   path="https://data.ontario.ca/datastore/dump/455fd63b-603d-4608-8216-7d8647f43350?format=csv"
@@ -391,6 +390,36 @@ get_ontario_case_data <- function(){
     st_as_sf(coords = c("Reporting_PHU_Longitude", "Reporting_PHU_Latitude"), crs = 4326, agr = "constant") %>%
     mutate(Date=as.Date(ACCURATE_EPISODE_DATE))
 }
+
+#' import and recode ontario case data from Alberta Open Data. Tends to have a day lag
+#' @return a wide format data frame with one row per case with Health Region, gender, age group,
+#' status, case type
+#' @export
+get_alberta_case_data <- function(){
+  path="https://covid19stats.alberta.ca/"
+  r <- xml2::read_html(path)
+  scripts <- rvest::html_nodes(r, css='script[type="application/json"]') %>%
+    lapply(rvest::html_text) %>% lapply(jsonlite::fromJSON)
+
+  data <- NULL
+  for (i in seq(1,length(scripts))) {
+    if (!is.null(data)) next
+    s <- scripts[[i]]
+    if (!is.null(s$x) & !is.null(s$x$data) & !is.null(s$x$container)) {
+      header <- xml2::read_html(s$x$container) %>% rvest::html_nodes("th") %>% rvest::html_text()
+      header[1] <- "Case number"
+      data <- s$x$data %>%
+        as_tibble() %>%
+        t() %>%
+        as_tibble() %>%
+        setNames(header)
+    }
+  }
+
+  data
+}
+
+
 
 province_name_lookup <- c(
   "35" = "Ontario",
