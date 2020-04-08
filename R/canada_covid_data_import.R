@@ -125,7 +125,9 @@ get_canada_covid_working_group_health_region_data <- function(){
     ungroup() %>%
     mutate(Province=recode(province,!!!reverse_provincial_recodes),
            shortProvince=recode(province,!!!provincial_recodes)) %>%
-    select(`Health Region`=health_region,Province,shortProvince,Date,Confirmed,Deaths,Cases)
+    select(`Health Region`=health_region,Province,shortProvince,Date,Confirmed,Deaths,Cases) %>%
+    mutate(PR_UID = as.character(province_uid_lookup[Province])) %>%
+    left_join(health_region_uid_join,by=c("PR_UID","Health Region"))
 }
 
 #' data from <a href="https://www.canada.ca/en/public-health/services/diseases/2019-novel-coronavirus-infection.html">Canada.ca</a>
@@ -154,7 +156,7 @@ get_canada_UofS_case_data <- function() {
     mutate(Date=as.Date(date)) %>%
     mutate(province=recode(province,"Repatriated Canadians"="Repatriated")) %>%
     mutate(shortProvince=recode(province,!!!provincial_recodes)) %>%
-    select(id,Date,Province=province,shortProvince,`Health region`=city,Age=age,
+    select(id,Date,Province=province,shortProvince,`Health Region`=city,Age=age,
            `Travel history`=travel_history,`Confirmed state`=confirmed_presumptive)
 }
 
@@ -191,9 +193,9 @@ get_canada_UofS_provincial_data <- function(){
 #' @export
 get_canada_UofS_health_region_data <- function(){
   get_canada_UofS_case_data() %>%
-    group_by(Date,`Health region`) %>%
+    group_by(Date,`Health Region`) %>%
     summarize(Cases=n()) %>%
-    group_by(`Health region`) %>%
+    group_by(`Health Region`) %>%
     arrange(Date) %>%
     mutate(Confirmed=cumsum(Cases))
 }
@@ -421,21 +423,7 @@ get_alberta_case_data <- function(){
 
 
 
-province_name_lookup <- c(
-  "35" = "Ontario",
-  "24" = "Quebec",
-  "59" = "British Columbia",
-  "48" = "Alberta",
-  "46" = "Manitoba",
-  "47" = "Saskatchewan",
-  "12" = "Nova Scotia",
-  "13" = "New Brunswick",
-  "10" = "Newfoundland and Labrador",
-  "11" = "Prince Edward Island",
-  "61" = "Northwest Territories",
-  "62" = "Nunavut",
-  "60" = "Yukon"
-  )
+
 
 #' get Health Region geographies
 #' @return a simple feature collection with 2018 Health Region data
@@ -511,7 +499,7 @@ saskatoon_hr_name_lookup <- c(
   "47x2" = "Central",
   "47x3" = "North",
   "47x4" = "Far North",
-  "4704" = "Regiona",
+  "4704" = "Regina",
   "4706" = "Saskatoon"
 )
 
