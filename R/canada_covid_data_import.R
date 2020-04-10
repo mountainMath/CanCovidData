@@ -166,13 +166,16 @@ get_canada_UofS_case_data <- function() {
 #' all other counts are cumulative. `Confirmed` is `Offical confirmed` plus `Probable` (postive tests which have not been confirmed at an official national or provincial lab)
 #' @export
 get_canada_UofS_provincial_data <- function(){
-  get_canada_UofS_case_data() %>%
+  d<-get_canada_UofS_case_data() %>%
     group_by(Date,Province,shortProvince,`Confirmed state`) %>%
     summarize(Cases=n()) %>%
     bind_rows(group_by(.,Date,`Confirmed state`) %>%summarise(Cases=sum(Cases)) %>% mutate(Province="Canada",shortProvince="CAN")) %>%
     ungroup %>%
-    pivot_wider(id_cols=c("Date","Province","shortProvince"), names_from = `Confirmed state`, values_from = Cases) %>%
-    mutate_at(c("CONFIRMED", "PRESUMPTIVE"),function(d)coalesce(d,0L)) %>%
+    pivot_wider(id_cols=c("Date","Province","shortProvince"), names_from = `Confirmed state`, values_from = Cases)
+
+  if (!("PRESUMPTIVE" %in% names(d))) d <- d %>% mutate(PRESUMPTIVE=0L)
+
+  d %>% mutate_at(c("CONFIRMED", "PRESUMPTIVE"),function(d)coalesce(d,0L)) %>%
     group_by(Province,shortProvince) %>%
     arrange(Date) %>%
     mutate(`Official confirmed`=cumsum(CONFIRMED),Probable=cumsum(PRESUMPTIVE)) %>%
