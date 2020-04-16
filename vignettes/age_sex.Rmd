@@ -26,7 +26,7 @@ library(ggplot2)
 ```{r}
 case_data <- get_cansim_case_data()
 
-ggplot(case_data,aes(x=`Age group`,fill=Sex)) +
+ggplot(case_data,aes(x=`Age group`,fill=Gender)) +
   geom_bar() +
   labs(title=paste0("Cases with age or sex information as of ",
                     max(case_data$Date2), " (n=",scales::comma(nrow(case_data)),")"),

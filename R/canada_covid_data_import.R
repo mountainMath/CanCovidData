@@ -283,6 +283,7 @@ get_cansim_case_data <- function(){
   sex_recodes <- c(
     "1" = "Male",
     "2" = "Female",
+    "3" = "Non-binary",
     "9" = "Not stated"
   )
 
@@ -313,7 +314,7 @@ get_cansim_case_data <- function(){
     recode_field("Transmission",transmission_recodes) %>%
     recode_field("Death",death_recodes) %>%
     recode_field("Age group",age_recodes) %>%
-    recode_field("Sex",sex_recodes)
+    recode_field("Gender",sex_recodes)
 }
 
 
@@ -436,8 +437,7 @@ get_british_columbia_case_data <- function(){
 }
 
 #' import and recode test data from British Columbia CDC. Tends to have a day lag
-#' @return a wide format data frame with one row per date and Health Authority, with additional columns
-#' New Tests, Total Tests, Positivity and Trun Around
+#' @return a long format data frame with Date, Health Authority, Metric of tpye of test and Count
 #' @export
 get_british_columbia_test_data <- function(){
   path="http://www.bccdc.ca/Health-Info-Site/Documents/BCCDC_COVID19_Dashboard_Lab_Information.csv"

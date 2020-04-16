@@ -7,8 +7,7 @@
 get_british_columbia_test_data()
 }
 \value{
-a wide format data frame with one row per date and Health Authority, with additional columns
-New Tests, Total Tests, Positivity and Trun Around
+a long format data frame with Date, Health Authority, Metric of tpye of test and Count
 }
 \description{
 import and recode test data from British Columbia CDC. Tends to have a day lag
