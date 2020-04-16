@@ -424,6 +424,32 @@ get_alberta_case_data <- function(){
   data
 }
 
+#' import and recode case data from British Columbia CDC. Tends to have a day lag
+#' @return a wide format data frame with one row per case with Health Authority, gender, age group
+#' and report date
+#' @export
+get_british_columbia_case_data <- function(){
+  path="http://www.bccdc.ca/Health-Info-Site/Documents/BCCDC_COVID19_Dashboard_Case_Details.csv"
+  read_csv(path,col_types=cols(.default="c")) %>%
+    mutate(`Reported Date`=as.Date(Reported_Date)) %>%
+    select(`Reported Date`,`Health Authority`=HA,`Age group`=Age_Group,Sex)
+}
+
+#' import and recode test data from British Columbia CDC. Tends to have a day lag
+#' @return a wide format data frame with one row per date and Health Authority, with additional columns
+#' New Tests, Total Tests, Positivity and Trun Around
+#' @export
+get_british_columbia_test_data <- function(){
+  path="http://www.bccdc.ca/Health-Info-Site/Documents/BCCDC_COVID19_Dashboard_Lab_Information.csv"
+  read_csv(path,col_types=cols(.default="c")) %>%
+    mutate(Date=as.Date(Date)) %>%
+    rename(`Health Authority`=Region) %>%
+    pivot_longer(-one_of("Date","Health Authority"),names_to = "Metric",values_to = "Count") %>%
+    mutate(Count=as.integer(Count))
+}
+
+
+
 
 
 
