@@ -151,8 +151,11 @@ get_canada_official_provincial_data <- function(){
 #' `Travel history`, `Confirmed state`
 #' @export
 get_canada_UofS_case_data <- function() {
-  r<-httr::GET("https://covid19tracker.ca/api/controller/cases.php")
-  data <- httr::content(r)$individualCases %>% purrr::map_df(as_tibble) %>%
+  tmp=tempfile("UofS_cases.xlsx")
+  download.file("https://docs.google.com/spreadsheets/d/1e0QhkGT3XzJJh7l7EfUkK3be-81TawOEqO3JHMD8Y8s/export?format=xlsx&id=1e0QhkGT3XzJJh7l7EfUkK3be-81TawOEqO3JHMD8Y8s",tmp)
+  data <- readxl::read_excel(tmp,"Case Data") %>%
+  #r<-httr::GET("https://covid19tracker.ca/api/controller/cases.php")
+  #data <- httr::content(r)$individualCases %>% purrr::map_df(as_tibble) %>%
     mutate(Date=as.Date(date)) %>%
     mutate(province=recode(province,"Repatriated Canadians"="Repatriated")) %>%
     mutate(shortProvince=recode(province,!!!provincial_recodes)) %>%
@@ -205,24 +208,29 @@ get_canada_UofS_health_region_data <- function(){
 
 
 #' combined data from UofS, Canada.ca and Canada Covid-19 working group.
+#' @param use_UofS logical, whether or not to use UofS case data.
 #' @return dataframe with columns `shortProvince`, `Province`, `Date`,
 #' `Confirmed`, `Deaths`, `Cases`, `Recovered`, `Active`
 #' @export
-get_canada_combined_provincial_data <- function(){
+get_canada_combined_provincial_data <- function(use_UofS=TRUE){
   od <- get_canada_official_provincial_data()
   sd <- get_canada_UofS_provincial_data()
   wd <- get_canada_covid_working_group_provincial_data()
 
-  # sd %>%
-  #   select(shortProvince,Date,Confirmed) %>%
-  #   full_join(od %>% select(shortProvince,Date,Confirmed_o=Confirmed,Deaths), by=c("Date","shortProvince")) %>%
-  #   select(shortProvince,Date,Confirmed) %>%
-  #   full_join(od %>% select(shortProvince,Date,Confirmed_o=Confirmed,Deaths), by=c("Date","shortProvince")) %>%
-  #   full_join(wd %>% select(shortProvince,Date,Confirmed_w=Confirmed,Deaths_w=Deaths,Recovered), by=c("Date","shortProvince")) %>%
-  wd %>%
-    select(shortProvince,Date,Confirmed,Recovered,Deaths_w=Deaths) %>%
-    mutate(Confirmed_w=Confirmed) %>%
+  if (use_UofS) {
+  d <- sd %>%
+    select(shortProvince,Date,Confirmed) %>%
     full_join(od %>% select(shortProvince,Date,Confirmed_o=Confirmed,Deaths), by=c("Date","shortProvince")) %>%
+    select(shortProvince,Date,Confirmed) %>%
+    full_join(od %>% select(shortProvince,Date,Confirmed_o=Confirmed,Deaths), by=c("Date","shortProvince")) %>%
+    full_join(wd %>% select(shortProvince,Date,Confirmed_w=Confirmed,Deaths_w=Deaths,Recovered), by=c("Date","shortProvince"))
+  }else {
+    d <-   wd %>%
+      select(shortProvince,Date,Confirmed,Recovered,Deaths_w=Deaths) %>%
+      mutate(Confirmed_w=Confirmed) %>%
+      full_join(od %>% select(shortProvince,Date,Confirmed_o=Confirmed,Deaths), by=c("Date","shortProvince"))
+  }
+  d %>%
     group_by(shortProvince) %>%
     arrange(Date) %>%
     fill(Confirmed,.direction = "down") %>%
@@ -432,8 +440,8 @@ get_alberta_case_data <- function(){
 get_british_columbia_case_data <- function(){
   path="http://www.bccdc.ca/Health-Info-Site/Documents/BCCDC_COVID19_Dashboard_Case_Details.csv"
   read_csv(path,col_types=cols(.default="c")) %>%
-    mutate(`Reported Date`=as.Date(Reported_Date)) %>%
-    select(`Reported Date`,`Health Authority`=HA,`Age group`=Age_Group,Sex)
+    rename(`Reported Date`=Reported_Date,`Health Authority`=HA,`Age group`=Age_Group) %>%
+    mutate(`Reported Date`=as.Date(`Reported Date`))
 }
 
 #' import and recode test data from British Columbia CDC. Tends to have a day lag
