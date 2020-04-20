@@ -40,10 +40,7 @@ ggplot(test_data_official,aes(x=Date,y=Tested,color=shortProvince)) +
 ```
 
 ```{r}
-case_data <- get_canada_covid_working_group_provincial_data()
-```
-
-```{r}
+#case_data <- get_canada_covid_working_group_provincial_data()
 #inner_join(case_data,test_data,by=c("shortProvince","Province","Date")) %>%
 test_data_official %>%
   mutate(`Share positive`=Confirmed/Tested) %>%
