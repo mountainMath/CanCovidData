@@ -143,7 +143,10 @@ get_canada_official_provincial_data <- function(){
                          "Repatriated travellers"="Repatriated")) %>%
     mutate(shortProvince=recode(prname,!!!provincial_recodes)) %>%
     select(PR_UID=pruid,prname,prnameFR,shortProvince,Date,
-           Confirmed=numtotal,`Offical confirmed`=numconf,Probable=numprob,Deaths=numdeaths,Cases=numtoday,Tested=numtested)
+           Confirmed=numtotal,`Offical confirmed`=numconf,Probable=numprob,Deaths=numdeaths,`Official cases`=numtoday,Tested=numtested) %>%
+    group_by(PR_UID) %>%
+    mutate(Cases=Confirmed-lag(Confirmed,order_by = Date,default = 0)) %>%
+    ungroup
 }
 
 #' data from UofS (https://covid19tracker.ca/)
@@ -216,6 +219,18 @@ get_canada_combined_provincial_data <- function(use_UofS=TRUE){
   od <- get_canada_official_provincial_data()
   sd <- get_canada_UofS_provincial_data()
   wd <- get_canada_covid_working_group_provincial_data()
+
+# try to mix and match, too messy
+  # d<-od %>%
+  #   filter(!(Cases==0 & is.na(`Official cases`))) %>%
+  #   select(shortProvince,Date,Confirmed_od=Confirmed) %>%
+  #   full_join(wd %>% select(shortProvince,Date,Confirmed_wd=Confirmed), by=c("Date","shortProvince")) %>%
+  #   full_join(sd %>% select(shortProvince,Date,Confirmed_sd=Confirmed), by=c("Date","shortProvince")) %>%
+  #   mutate(Confirmed=coalesce(Confirmed_od,Confirmed_wd)) %>%
+  #   mutate(Confirmed=coalesce(Confirmed,as.numeric(Confirmed_sd)))
+
+
+
 
   if (use_UofS) {
   d <- sd %>%
