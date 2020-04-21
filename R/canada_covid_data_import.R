@@ -1,9 +1,18 @@
+clean_cases <- function(data){
+  data %>% mutate(Date=as.Date(date_report,format="%d-%m-%Y"),count=1)
+}
+
+
 #' Get confirmed case data from the covid-19 data working group
 #' @return tibble with case data
 #' @export
 get_canada_covid_working_group_cases <- function(){
   read_csv("https://github.com/ishaberry/Covid19Canada/raw/master/cases.csv") %>%
-    mutate(Date=as.Date(date_report,format="%d-%m-%Y"),count=1)
+    clean_cases()
+}
+
+clean_deaths <- function(data){
+  data %>% mutate(Date=as.Date(date_death_report,format="%d-%m-%Y"),count=1)
 }
 
 #' Get deaths data from the covid-19 data working group
@@ -11,7 +20,18 @@ get_canada_covid_working_group_cases <- function(){
 #' @export
 get_canada_covid_working_group_deaths <- function(){
   read_csv("https://github.com/ishaberry/Covid19Canada/raw/master/mortality.csv") %>%
-    mutate(Date=as.Date(date_death_report,format="%d-%m-%Y"),count=1)
+    clean_deaths()
+}
+
+clean_recovered <- function(data){
+  data %>%
+    select(date_recovered, province, cumulative_recovered) %>%
+    filter(!is.na(cumulative_recovered)) %>%
+    mutate(Date=as.Date(date_recovered,format="%d-%m-%Y"),
+           CumulativeRecovered=as.integer(cumulative_recovered)) %>%
+    group_by(province) %>%
+    mutate(count=CumulativeRecovered-lag(CumulativeRecovered,order_by = Date,default = 0)) %>%
+    ungroup
 }
 
 #' Get recovered case data from the covid-19 data working group
@@ -19,12 +39,7 @@ get_canada_covid_working_group_deaths <- function(){
 #' @export
 get_canada_covid_working_group_recovered <- function(){
   read_csv("https://github.com/ishaberry/Covid19Canada/raw/master/recovered_cumulative.csv") %>%
-    filter(!is.na(cumulative_recovered)) %>%
-    mutate(Date=as.Date(date_recovered,format="%d-%m-%Y"),
-           CumulativeRecovered=as.integer(cumulative_recovered)) %>%
-    group_by(province) %>%
-    mutate(count=CumulativeRecovered-lag(CumulativeRecovered,order_by = Date,default = 0)) %>%
-    ungroup
+    clean_recovered()
 }
 
 #' Get data on testing in Canada from the covid-19 data working group
@@ -48,14 +63,31 @@ get_canada_covid_working_group_tests <- function(){
 }
 
 #' data from the covid-19 data working group (https://github.com/ishaberry/Covid19Canada)
+#' @param use_csv use convenience csv download instead of cases
 #' @return dataframe with columns `province`, `health_region`, `Date`, `type`, `count`
 #' `type` is "Cases", "Deaths", "Recovered". All are new daily cases
 #' and Recovered is cumulative recovered cases.
 #' @export
-get_canada_covid_working_group_data <- function(){
-    bind_rows(get_canada_covid_working_group_cases() %>% mutate(type="Cases"),
-              get_canada_covid_working_group_deaths() %>% mutate(type="Deaths"),
-              get_canada_covid_working_group_recovered() %>% mutate(type="Recovered")) %>%
+get_canada_covid_working_group_data <- function(use_csv=FALSE){
+  if (use_csv) {
+    result <- bind_rows(get_canada_covid_working_group_cases() %>% mutate(type="Cases"),
+                        get_canada_covid_working_group_deaths() %>% mutate(type="Deaths"),
+                        get_canada_covid_working_group_recovered() %>% mutate(type="Recovered"))
+
+  } else {
+    tmp=tempfile("cases.xlsx")
+    download.file("https://docs.google.com/spreadsheets/d/1D6okqtBS3S2NRC7GFVHzaZ67DuTw7LX49-fqSLwJyeo/export?format=xlsx&id=1D6okqtBS3S2NRC7GFVHzaZ67DuTw7LX49-fqSLwJyeo",tmp)
+    cases <- readxl::read_xlsx(tmp,"Cases",skip=3) %>% clean_cases()
+    deaths <- readxl::read_xlsx(tmp,"Mortality",skip=3) %>% clean_deaths()
+    recovered <- readxl::read_xlsx(tmp,"Recovered",skip=3) %>% clean_recovered()
+
+    result <- bind_rows(cases %>% mutate(type="Cases"),
+                        deaths %>% mutate(type="Deaths"),
+                        recovered %>% mutate(type="Recovered"))
+  }
+
+
+  result %>%
     select(health_region,province,Date,type,count)
 }
 
@@ -215,9 +247,8 @@ get_canada_UofS_health_region_data <- function(){
 #' @return dataframe with columns `shortProvince`, `Province`, `Date`,
 #' `Confirmed`, `Deaths`, `Cases`, `Recovered`, `Active`
 #' @export
-get_canada_combined_provincial_data <- function(use_UofS=TRUE){
+get_canada_combined_provincial_data <- function(use_UofS=FALSE){
   od <- get_canada_official_provincial_data()
-  sd <- get_canada_UofS_provincial_data()
   wd <- get_canada_covid_working_group_provincial_data()
 
 # try to mix and match, too messy
@@ -233,12 +264,13 @@ get_canada_combined_provincial_data <- function(use_UofS=TRUE){
 
 
   if (use_UofS) {
-  d <- sd %>%
-    select(shortProvince,Date,Confirmed) %>%
-    full_join(od %>% select(shortProvince,Date,Confirmed_o=Confirmed,Deaths), by=c("Date","shortProvince")) %>%
-    select(shortProvince,Date,Confirmed) %>%
-    full_join(od %>% select(shortProvince,Date,Confirmed_o=Confirmed,Deaths), by=c("Date","shortProvince")) %>%
-    full_join(wd %>% select(shortProvince,Date,Confirmed_w=Confirmed,Deaths_w=Deaths,Recovered), by=c("Date","shortProvince"))
+    sd <- get_canada_UofS_provincial_data()
+    d <- sd %>%
+      select(shortProvince,Date,Confirmed) %>%
+      full_join(od %>% select(shortProvince,Date,Confirmed_o=Confirmed,Deaths), by=c("Date","shortProvince")) %>%
+      select(shortProvince,Date,Confirmed) %>%
+      full_join(od %>% select(shortProvince,Date,Confirmed_o=Confirmed,Deaths), by=c("Date","shortProvince")) %>%
+      full_join(wd %>% select(shortProvince,Date,Confirmed_w=Confirmed,Deaths_w=Deaths,Recovered), by=c("Date","shortProvince"))
   }else {
     d <-   wd %>%
       select(shortProvince,Date,Confirmed,Recovered,Deaths_w=Deaths) %>%

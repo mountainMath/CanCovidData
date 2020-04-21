@@ -4,7 +4,7 @@
 \alias{get_canada_combined_provincial_data}
 \title{combined data from UofS, Canada.ca and Canada Covid-19 working group.}
 \usage{
-get_canada_combined_provincial_data(use_UofS = TRUE)
+get_canada_combined_provincial_data(use_UofS = FALSE)
 }
 \arguments{
 \item{use_UofS}{logical, whether or not to use UofS case data.}
