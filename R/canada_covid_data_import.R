@@ -267,15 +267,15 @@ get_canada_combined_provincial_data <- function(use_UofS=FALSE){
     sd <- get_canada_UofS_provincial_data()
     d <- sd %>%
       select(shortProvince,Date,Confirmed) %>%
-      full_join(od %>% select(shortProvince,Date,Confirmed_o=Confirmed,Deaths), by=c("Date","shortProvince")) %>%
+      full_join(od %>% select(shortProvince,Date,Confirmed_o=Confirmed,Deaths_o=Deaths), by=c("Date","shortProvince")) %>%
       select(shortProvince,Date,Confirmed) %>%
       full_join(od %>% select(shortProvince,Date,Confirmed_o=Confirmed,Deaths), by=c("Date","shortProvince")) %>%
-      full_join(wd %>% select(shortProvince,Date,Confirmed_w=Confirmed,Deaths_w=Deaths,Recovered), by=c("Date","shortProvince"))
+      full_join(wd %>% select(shortProvince,Date,Confirmed_w=Confirmed,Deaths,Recovered), by=c("Date","shortProvince"))
   }else {
     d <-   wd %>%
-      select(shortProvince,Date,Confirmed,Recovered,Deaths_w=Deaths) %>%
+      select(shortProvince,Date,Confirmed,Recovered,Deaths) %>%
       mutate(Confirmed_w=Confirmed) %>%
-      full_join(od %>% select(shortProvince,Date,Confirmed_o=Confirmed,Deaths), by=c("Date","shortProvince"))
+      full_join(od %>% select(shortProvince,Date,Confirmed_o=Confirmed,Deaths_o=Deaths), by=c("Date","shortProvince"))
   }
   d %>%
     group_by(shortProvince) %>%
@@ -284,9 +284,9 @@ get_canada_combined_provincial_data <- function(use_UofS=FALSE){
     fill(Confirmed_w,.direction = "down") %>%
     fill(Confirmed_o,.direction = "down") %>%
     fill(Deaths,.direction = "down") %>%
-    fill(Deaths_w,.direction = "down") %>%
+    fill(Deaths_o,.direction = "down") %>%
     fill(Recovered,.direction = "down") %>%
-    mutate_at(c("Confirmed","Deaths","Deaths_w","Recovered","Confirmed_o","Confirmed_w"),
+    mutate_at(c("Confirmed","Deaths","Deaths_o","Recovered","Confirmed_o","Confirmed_w"),
               function(d)coalesce(as.integer(d),0L)) %>%
     mutate(Cases=Confirmed-lag(Confirmed,order_by = Date,default = 0),
            Active=Confirmed-Deaths-Recovered) %>%
