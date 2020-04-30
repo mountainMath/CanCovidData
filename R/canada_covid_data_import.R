@@ -449,7 +449,7 @@ get_ontario_case_data <- function(){
   path="https://data.ontario.ca/datastore/dump/455fd63b-603d-4608-8216-7d8647f43350?format=csv"
   ontario_data <- read_csv(path) %>% #, col_types = cols(.default="c")) %>%
     st_as_sf(coords = c("Reporting_PHU_Longitude", "Reporting_PHU_Latitude"), crs = 4326, agr = "constant") %>%
-    mutate(Date=as.Date(ACCURATE_EPISODE_DATE))
+    mutate(Date=as.Date(Accurate_Episode_Date))
 }
 
 #' import and recode ontario case data from Alberta Open Data. Tends to have a day lag
