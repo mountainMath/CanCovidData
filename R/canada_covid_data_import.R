@@ -500,7 +500,7 @@ get_british_columbia_test_data <- function(){
     mutate(Date=as.Date(Date)) %>%
     rename(`Health Authority`=Region) %>%
     pivot_longer(-one_of("Date","Health Authority"),names_to = "Metric",values_to = "Count") %>%
-    mutate(Count=as.integer(Count))
+    mutate(Count=as.integer(Count),Metric=gsub("_"," ",Metric))
 }
 
 
