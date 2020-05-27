@@ -146,8 +146,8 @@ get_canada_covid_working_group_health_region_data <- function(){
     pivot_wider(id_cols = c("province",'health_region',"Date"),
                 names_from = type, values_from = count) %>%
     ungroup() %>%
-    fill(Cases,.direction = "down") %>%
-    fill(Deaths,.direction = "down") %>%
+    #fill(Cases,.direction = "down") %>%
+    #fill(Deaths,.direction = "down") %>%
     mutate(Cases=coalesce(Cases,0L), Deaths=coalesce(Deaths,0L)) %>%
     mutate(health_region=ifelse(health_region=="Not Reported",
                                 paste0("Not Reported, ",province), health_region)) %>%
@@ -510,14 +510,24 @@ get_british_columbia_test_data <- function(){
 
 
 #' get Health Region geographies
+#' @param refresh data is cached for the duration of the session, set to `TRUE` to refresh the cache
 #' @return a simple feature collection with 2018 Health Region data
 #' This misses at least one 2020 change to Ontario Health regoins
 #' @export
-get_health_region_geographies_2018 <- function(){
-  tmp=tempfile()
-  download.file("https://www150.statcan.gc.ca/n1/en/pub/82-402-x/2018001/data-donnees/boundary-limites/arcinfo/HR_000a18a-eng.zip?st=mOIAprjV",tmp)
-  f<-unzip(tmp,exdir = tempdir())
-  read_sf(f[grepl("\\.shp$",f)]) %>%
+get_health_region_geographies_2018 <- function(refresh=FALSE){
+  path=file.path(tempfile(),"health_region_geos")
+  if (refresh | !dir.exists(path)) {
+    if (dir.exists(path)) file.remove(path,recursive+TRUE)
+    tmp=tempfile()
+    download.file("https://www150.statcan.gc.ca/n1/en/pub/82-402-x/2018001/data-donnees/boundary-limites/arcinfo/HR_000a18a-eng.zip?st=9qprvBH_",tmp)
+    #download.file("https://www150.statcan.gc.ca/n1/en/pub/82-402-x/2018001/data-donnees/boundary-limites/arcinfo/Cart2018_ArcGIS-eng.zip?st=W67zNX6P",tmp)
+    #download.file("https://www150.statcan.gc.ca/n1/en/pub/82-402-x/2018001/data-donnees/boundary-limites/arcinfo/HR_000a18a-eng.zip?st=mOIAprjV",tmp)
+    unzip(tmp,exdir = path)
+  }
+  ff=dir(path)
+  f=dir(file.path(path,ff))
+  file=f[grepl("\\.shp$",f)]
+  read_sf(file.path(path,ff,file)) %>%
     mutate(Name=ENGNAME, GeoUID = HR_UID) %>%
     mutate(PR_UID=substr(HR_UID,1,2)) %>%
     mutate(PR_NAME=province_name_lookup[PR_UID])

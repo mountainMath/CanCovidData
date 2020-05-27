@@ -4,7 +4,10 @@
 \alias{get_health_region_geographies_2018}
 \title{get Health Region geographies}
 \usage{
-get_health_region_geographies_2018()
+get_health_region_geographies_2018(refresh = FALSE)
+}
+\arguments{
+\item{refresh}{data is cached for the duration of the session, set to `TRUE` to refresh the cache}
 }
 \value{
 a simple feature collection with 2018 Health Region data
