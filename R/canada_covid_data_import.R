@@ -504,9 +504,62 @@ get_british_columbia_test_data <- function(){
 }
 
 
+#' get Toronto case data
+#' @return a data frame with Toronto neighbourhood level covid-19 counts
+#' @export
+get_toronto_neighbourhood_cases <- function(d){
+  tmp <- tempfile(fileext = ".xlsx")
+  utils::download.file("https://docs.google.com/spreadsheets/d/1euhrML0rkV_hHF1thiA0G5vSSeZCqxHY/export?format=xlsx&id=1euhrML0rkV_hHF1thiA0G5vSSeZCqxHY",tmp)
+  sheets <- readxl::excel_sheets(tmp)
+  d <- readxl::read_xlsx(tmp,"Cases of COVID-19 by Neighbourh") %>%
+    mutate(Name=gsub(" \\(\\d+\\)$","",`Neighbourhood Name`),
+           Code=gsub(".* \\((\\d+)\\)$", "\\1", `Neighbourhood Name`) %>%
+             as.integer)
+}
 
+#' get Toronto neihgbourhood geographies
+#' @param refresh data is cached for the duration of the session, set to `TRUE` to refresh the cache
+#' @return a simple feature collection with Toronto neighbrouhoods
+#' @export
+get_toronto_neighbourhood_geos <- function(refresh=FALSE){
+  path<-file.path(tempdir(),"toronto_nbhd_geos")
+  if (refresh | !dir.exists(path)) {
+    dir.create(path)
+    tmp=tempfile()
+    utils::download.file("https://ckan0.cf.opendata.inter.prod-toronto.ca/download_resource/a083c865-6d60-4d1d-b6c6-b0c8a85f9c15?format=shp&projection=4326",tmp)
+    utils::unzip(tmp,exdir = path)
+    unlink(tmp)
+  }
+  file_name <- "Neighbourhoods.shp"
+  geo <- sf::read_sf(file.path(path,file_name))
+  geo %>%
+    select(Code=FIELD_5,Name=FIELD_7,ID=FIELD_1) %>%
+    mutate(Code=as.integer(Code),ID=as.character(ID))
+}
 
+#' get Toronto neihgbourhood census data 2016
+#' @param refresh data is cached for the duration of the session, set to `TRUE` to refresh the cache
+#' @return a data frame with toronto neighbourhood census data
+#' @export
+get_toronto_neighbourhood_census_data <- function(refresh=FALSE){
+  tmp<-file.path(tempdir(),"toronto_hoods_census.csv")
+  if (!file.exists(tmp)) {
+    utils::download.file("https://ckan0.cf.opendata.inter.prod-toronto.ca/download_resource/ef0239b1-832b-4d0b-a1f3-4153e53b189e?format=csv",tmp)
+  }
+  header <- readr::read_csv(tmp,col_names=FALSE,n_max=3)
+  h<-header[1,] %>% as.character()
+  h[1]="Member ID"
+  hoods <- header[1,seq(6,ncol(header))] %>% as.character()
+  codes <- header[2,seq(6,ncol(header))] %>% as.character()
+  codes[1]="3520005"
+  code_lookup <- rlang::set_names(codes,hoods)
+  cd <- readr::read_csv(tmp,col_names=h,skip=3,col_types = readr::cols(.default="c")) %>%
+    tidyr::pivot_longer(hoods,names_to = "Name",values_to = "Value") %>%
+    mutate(Code=code_lookup[Name] %>% as.integer) %>%
+    mutate(Value=as.numeric(gsub(",","",Value)))
 
+  cd
+}
 
 
 #' get Health Region geographies

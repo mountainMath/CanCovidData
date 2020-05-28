@@ -1,7 +1,7 @@
 Package: CanCovidData
 Type: Package
 Title: Access Canadian and International COVID-19 Data
-Version: 0.1.1
+Version: 0.1.2
 Authors@R: c(
     person("Jens", "von Bergmann", email = "jens@mountainmath.ca", role = c("cre"))
     )
