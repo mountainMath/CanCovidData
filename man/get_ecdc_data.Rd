@@ -7,7 +7,7 @@
 get_ecdc_data()
 }
 \value{
-dataframe with columns `Country`, `shortCountry`, `countryCode`, `Population 2018`, `Date`,
+dataframe with columns `Country`, `shortCountry`, `countryCode`, `Population 2019`, `Date`,
 `Confirmed`, `Deaths`, `Cases`, where `Cases` is daily confirmed case count increase and
 `Confirmed` and `Deaths` are cumulative
 }

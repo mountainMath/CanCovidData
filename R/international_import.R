@@ -1,5 +1,5 @@
 #' Import ecdc case data
-#' @return dataframe with columns `Country`, `shortCountry`, `countryCode`, `Population 2018`, `Date`,
+#' @return dataframe with columns `Country`, `shortCountry`, `countryCode`, `Population 2019`, `Date`,
 #' `Confirmed`, `Deaths`, `Cases`, where `Cases` is daily confirmed case count increase and
 #' `Confirmed` and `Deaths` are cumulative
 #' @export
@@ -27,7 +27,7 @@ get_ecdc_data <- function(){
                           "United States of America"="USA",
                           "United Kingdom"="UK",
                           "Czech Republic"="Czechia")) %>%
-    select(Country=Country,shortCountry=geoId,countryCode=countryterritoryCode,`Population 2018`=popData2018,
+    select(Country=Country,shortCountry=geoId,countryCode=countryterritoryCode,`Population 2019`=popData2019,
            Date,Confirmed,Deaths=CumulativeDeaths,Cases=cases)
 }
 #' Import jhs case data
