@@ -1,5 +1,5 @@
-#' Generate grawth rate graph
-#' @param data data fram with colum `region` for each group, `Date` with dates and `total`, for fitting the growth rates
+#' Generate growth rate graph
+#' @param data data fram with column `region` for each group, `Date` with dates and `total`, for fitting the growth rates
 #' @param window_width width for rolling window
 #' @return a `ggplot` object
 #' @export
@@ -53,8 +53,8 @@ growth_rate_graph <- function(data,window_width){
 }
 
 
-#' Generate grawth rate graph
-#' @param data data fram with colum `region` for each group, `Date` with dates and `total`, for fitting the growth rates
+#' Generate total cases graph
+#' @param data data fram with column `region` for each group, `Date` with dates and `total`, for fitting the growth rates
 #' @return a `ggplot` object
 #' @export
 total_graph <- function(data) {
