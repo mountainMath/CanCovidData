@@ -74,7 +74,7 @@ get_jhs_data <- function(){
 
 #' Import country level data, merge ecdc and jhs timelines
 #' @return dataframe with columns `Country`, `Date`,
-#' `Deaths`, `Recovered`, `Active`, `Cases`, Cases is daily new cases, others are cumulative
+#' `Deaths`, `Recovered`, `Active`, `Cases`, `Population 2019`, `countryCode`, Cases is daily new cases, others are cumulative. countryCode is the ISO3C (where it exists) for the country
 #' @export
 get_country_timeline_ecdc_jhs_data <- function(){
   ecdc_data <- simpleCache({
@@ -87,15 +87,17 @@ get_country_timeline_ecdc_jhs_data <- function(){
     summarize_at(c("Confirmed","Deaths","Recovered"),sum) %>%
     ungroup
 
-  bind_rows(ecdc_data %>%
-                 filter(Date<=min(jhs_data$Date)) %>%
-                 mutate(Recovered=0) %>%
-                 select(names(jhs_data)),
-               jhs_data) %>%
+  # Merge the two sets of data, then join in the `Population 2019`,`countryCode`
+  full_list <- bind_rows(ecdc_data %>%
+                           filter(Date<=min(jhs_data$Date)) %>%
+                           mutate(Recovered=0) %>%
+                           select(names(jhs_data)),
+                         jhs_data) %>%
     mutate(Active=Confirmed-Deaths-Recovered) %>%
     group_by(Country) %>%
     mutate(Cases=Confirmed-lag(Confirmed,order_by = Date,default = 0)) %>%
     ungroup
+  right_join(full_list, ecdc_data %>% select(`Country`,`Population 2019`,`countryCode`) %>% distinct())
 }
 
 #' @importFrom utils unzip
