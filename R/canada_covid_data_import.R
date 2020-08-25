@@ -488,7 +488,7 @@ get_british_columbia_case_data <- function(){
   path="http://www.bccdc.ca/Health-Info-Site/Documents/BCCDC_COVID19_Dashboard_Case_Details.csv"
   read_csv(path,col_types=cols(.default="c")) %>%
     rename(`Reported Date`=Reported_Date,`Health Authority`=HA,`Age group`=Age_Group) %>%
-    mutate(`Reported Date`=as.Date(`Reported Date`))
+    mutate(`Reported Date`=as.Date(`Reported Date`,format="%m/%d/%Y"))
 }
 
 #' import and recode test data from British Columbia CDC. Tends to have a day lag
