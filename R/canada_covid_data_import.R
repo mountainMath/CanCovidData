@@ -489,9 +489,7 @@ get_british_columbia_case_data <- function(){
   read_csv(path,col_types=cols(.default="c")) %>%
     rename(`Reported Date`=Reported_Date,`Health Authority`=HA,`Age group`=Age_Group) %>%
     mutate(`Age group`=recode(`Age group`,"19-Oct"="10-19")) %>%
-    mutate(d1=as.Date(`Reported Date`), d2= as.Date(`Reported Date`,format="%m/%d/%Y")) %>%
-    mutate(`Reported Date`=coalesce(d1,d2)) %>%
-    select(-d1,-d2)
+    mutate(`Reported Date`=as.Date(`Reported Date`,tryFormats = c("%Y-%m-%d", "%m/%d/%Y")))
 }
 
 #' import and recode test data from British Columbia CDC. Tends to have a day lag
@@ -500,7 +498,7 @@ get_british_columbia_case_data <- function(){
 get_british_columbia_test_data <- function(){
   path="http://www.bccdc.ca/Health-Info-Site/Documents/BCCDC_COVID19_Dashboard_Lab_Information.csv"
   read_csv(path,col_types=cols(.default="c")) %>%
-    mutate(Date=as.Date(Date)) %>%
+    mutate(Date=as.Date(Date,tryFormats = c("%Y-%m-%d", "%m/%d/%Y"))) %>%
     rename(`Health Authority`=Region) %>%
     pivot_longer(-one_of("Date","Health Authority"),names_to = "Metric",values_to = "Count") %>%
     mutate(Count=as.integer(Count),Metric=gsub("_"," ",Metric))
