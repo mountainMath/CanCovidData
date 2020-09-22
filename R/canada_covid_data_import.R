@@ -174,11 +174,9 @@ get_canada_official_provincial_data <- function(){
     mutate(prname=recode(prname,"Repatriated Travellers"="Repatriated",
                          "Repatriated travellers"="Repatriated")) %>%
     mutate(shortProvince=recode(prname,!!!provincial_recodes)) %>%
-    select(PR_UID=pruid,prname,prnameFR,shortProvince,Date,
-           Confirmed=numtotal,`Offical confirmed`=numconf,Probable=numprob,Deaths=numdeaths,`Official cases`=numtoday,Tested=numtested) %>%
-    group_by(PR_UID) %>%
-    mutate(Cases=Confirmed-lag(Confirmed,order_by = Date,default = 0)) %>%
-    ungroup
+    rename(PR_UID=pruid,
+           Confirmed=numtotal,`Offical confirmed`=numconf,Probable=numprob,Deaths=numdeaths,`Official cases`=numtoday,Tested=numtested,
+           Cases=numtoday)
 }
 
 #' data from UofS (https://covid19tracker.ca/)
