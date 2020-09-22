@@ -8,7 +8,7 @@ get_country_timeline_ecdc_jhs_data()
 }
 \value{
 dataframe with columns `Country`, `Date`,
-`Deaths`, `Recovered`, `Active`, `Cases`, Cases is daily new cases, others are cumulative
+`Deaths`, `Recovered`, `Active`, `Cases`, `Population 2019`, `countryCode`, Cases is daily new cases, others are cumulative. countryCode is the ISO3C (where it exists) for the country
 }
 \description{
 Import country level data, merge ecdc and jhs timelines

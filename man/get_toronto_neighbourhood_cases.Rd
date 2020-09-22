@@ -4,7 +4,7 @@
 \alias{get_toronto_neighbourhood_cases}
 \title{get Toronto case data}
 \usage{
-get_toronto_neighbourhood_cases(d)
+get_toronto_neighbourhood_cases()
 }
 \value{
 a data frame with Toronto neighbourhood level covid-19 counts

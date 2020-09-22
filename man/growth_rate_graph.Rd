@@ -2,12 +2,12 @@
 % Please edit documentation in R/covid_graphs.R
 \name{growth_rate_graph}
 \alias{growth_rate_graph}
-\title{Generate grawth rate graph}
+\title{Generate growth rate graph}
 \usage{
 growth_rate_graph(data, window_width)
 }
 \arguments{
-\item{data}{data fram with colum `region` for each group, `Date` with dates and `total`, for fitting the growth rates}
+\item{data}{data fram with column `region` for each group, `Date` with dates and `total`, for fitting the growth rates}
 
 \item{window_width}{width for rolling window}
 }
@@ -15,5 +15,5 @@ growth_rate_graph(data, window_width)
 a `ggplot` object
 }
 \description{
-Generate grawth rate graph
+Generate growth rate graph
 }

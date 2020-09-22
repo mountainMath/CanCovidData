@@ -1,7 +1,7 @@
 Package: CanCovidData
 Type: Package
 Title: Access Canadian and International COVID-19 Data
-Version: 0.1.3
+Version: 0.1.4
 Authors@R: c(
     person("Jens", "von Bergmann", email = "jens@mountainmath.ca", role = c("cre"))
     )
@@ -10,7 +10,7 @@ Description: Convenience functions to access Canadian and international covid-19
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.0.9000
 Depends: R (>= 2.10)
 Imports: 
     dplyr (>= 0.8.5),
