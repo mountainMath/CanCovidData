@@ -173,9 +173,10 @@ get_canada_official_provincial_data <- function(){
     mutate(Date=as.Date(date,format="%d-%m-%Y")) %>%
     mutate(prname=recode(prname,"Repatriated Travellers"="Repatriated",
                          "Repatriated travellers"="Repatriated")) %>%
-    mutate(shortProvince=recode(prname,!!!provincial_recodes)) %>%
+    mutate(shortProvince=recode(prname,!!!provincial_recodes),
+           `Official cases`=numtoday) %>%
     rename(PR_UID=pruid,
-           Confirmed=numtotal,`Offical confirmed`=numconf,Probable=numprob,Deaths=numdeaths,`Official cases`=numtoday,Tested=numtested,
+           Confirmed=numtotal,`Offical confirmed`=numconf,Probable=numprob,Deaths=numdeaths,Tested=numtested,
            Cases=numtoday)
 }
 
