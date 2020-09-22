@@ -506,7 +506,7 @@ get_british_columbia_test_data <- function(){
 #' get Toronto case data
 #' @return a data frame with Toronto neighbourhood level covid-19 counts
 #' @export
-get_toronto_neighbourhood_cases <- function(d){
+get_toronto_neighbourhood_cases <- function(){
   tmp <- tempfile(fileext = ".xlsx")
   utils::download.file("https://docs.google.com/spreadsheets/d/1euhrML0rkV_hHF1thiA0G5vSSeZCqxHY/export?format=xlsx&id=1euhrML0rkV_hHF1thiA0G5vSSeZCqxHY",tmp)
   sheets <- readxl::excel_sheets(tmp)
