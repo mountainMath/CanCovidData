@@ -76,10 +76,16 @@ get_canada_covid_working_group_data <- function(use_csv=FALSE){
 
   } else {
     tmp=tempfile("cases.xlsx")
-    download.file("https://docs.google.com/spreadsheets/d/1D6okqtBS3S2NRC7GFVHzaZ67DuTw7LX49-fqSLwJyeo/export?format=xlsx&id=1D6okqtBS3S2NRC7GFVHzaZ67DuTw7LX49-fqSLwJyeo",tmp)
+    tmp2=tempfile("mortality.xlsx")
+    case_path <- "https://docs.google.com/spreadsheets/d/1D6okqtBS3S2NRC7GFVHzaZ67DuTw7LX49-fqSLwJyeo/export?format=xlsx"
+    mortality_path <- "https://docs.google.com/spreadsheets/d/1GrX5kiDA-rj3L9K0Q2IY1H-D7unAd7lfGAF7CMjhdVw/export?format=xlsx&id=1GrX5kiDA-rj3L9K0Q2IY1H-D7unAd7lfGAF7CMjhdVw"
+    #download.file("https://docs.google.com/spreadsheets/d/1D6okqtBS3S2NRC7GFVHzaZ67DuTw7LX49-fqSLwJyeo/export?format=xlsx&id=1D6okqtBS3S2NRC7GFVHzaZ67DuTw7LX49-fqSLwJyeo",tmp)
+    download.file(case_path,tmp)
+    download.file(mortality_path,tmp2)
     cases <- readxl::read_xlsx(tmp,"Cases",skip=3) %>% clean_cases()
-    deaths <- readxl::read_xlsx(tmp,"Mortality",skip=3) %>% clean_deaths()
-    recovered <- readxl::read_xlsx(tmp,"Recovered",skip=3) %>% clean_recovered()
+
+    deaths <- readxl::read_xlsx(tmp2,"Mortality",skip=3) %>% clean_deaths()
+    recovered <- readxl::read_xlsx(tmp2,"Recovered",skip=3) %>% clean_recovered()
 
     result <- bind_rows(cases %>% mutate(type="Cases"),
                         deaths %>% mutate(type="Deaths"),
