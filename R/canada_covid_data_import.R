@@ -506,14 +506,13 @@ get_british_columbia_test_data <- function(){
     mutate(Date=as.Date(Date,tryFormats = c("%Y-%m-%d", "%m/%d/%Y"))) %>%
     rename(`Health Authority`=Region) %>%
     pivot_longer(-one_of("Date","Health Authority"),names_to = "Metric",values_to = "Count") %>%
-    mutate(Count=as.integer(Count),Metric=gsub("_"," ",Metric))
+    mutate(Count=as.numeric(Count),Metric=gsub("_"," ",Metric))
 }
 
 
-#' get Toronto case data
+#' get Toronto case data old
 #' @return a data frame with Toronto neighbourhood level covid-19 counts
-#' @export
-get_toronto_neighbourhood_cases <- function(){
+get_toronto_neighbourhood_cases_old <- function(){
   tmp <- tempfile(fileext = ".xlsx")
   utils::download.file("https://docs.google.com/spreadsheets/d/1euhrML0rkV_hHF1thiA0G5vSSeZCqxHY/export?format=xlsx&id=1euhrML0rkV_hHF1thiA0G5vSSeZCqxHY",tmp)
   sheets <- readxl::excel_sheets(tmp)
@@ -522,6 +521,15 @@ get_toronto_neighbourhood_cases <- function(){
            Code=gsub(".* \\((\\d+)\\)$", "\\1", `Neighbourhood Name`) %>%
              as.integer)
 }
+
+#' get Toronto case data
+#' @return a data frame with Toronto neighbourhood level covid-19 counts
+#' @export
+get_toronto_neighbourhood_cases <- function(){
+  readr::read_csv("https://ckan0.cf.opendata.inter.prod-toronto.ca/download_resource/e5bf35bc-e681-43da-b2ce-0242d00922ad?format=csv")
+}
+
+
 
 #' get Toronto neihgbourhood geographies
 #' @param refresh data is cached for the duration of the session, set to `TRUE` to refresh the cache
