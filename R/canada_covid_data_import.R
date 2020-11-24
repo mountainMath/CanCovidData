@@ -485,6 +485,57 @@ get_alberta_case_data <- function(){
   data
 }
 
+#' import and recode case data from Saskatchewan.
+#' @param date for which to download the data. Defauly is NULL and downloads the newest available
+#' @return a wide format data frame
+#' @export
+get_manitoba_daily_case_data <- function(date=NULL){
+  tmp <- tempfile()
+  url="https://services.arcgis.com/mMUesHYPkXjaFGfS/arcgis/rest/services/mb_covid_cases_by_demographics_rha_all/FeatureServer/0/query?f=json&where=1%3D1&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=*&groupByFieldsForStatistics=Age_Group%2CGender&orderByFields=Age_Group%20desc"
+  if (!is.null(date)){
+    url=paste0("https://raw.githubusercontent.com/jacmarcx/covid_mb_downloader/master/json/demographics-rha/",date,"-demographics-rha.json")
+  }
+  download.file(url,tmp)
+  d<-jsonlite::read_json(tmp)$features %>%
+    lapply(function(r)as_tibble(r$attributes)) %>%
+    bind_rows
+}
+
+#' import and recode case data from Saskatchewan.
+#' @return a wide format data frame
+#' @export
+get_saskatchewan_case_data <- function(){
+  d<-xml2::read_html("https://dashboard.saskatchewan.ca/health-wellness/covid-19/cases")
+  e<-rvest::html_node(d,".indicator-export") %>%
+    rvest::html_node("a") %>%
+    rvest::html_attr("href")
+  readr::read_csv(paste0("https://dashboard.saskatchewan.ca",e))
+}
+
+#' import and recode case data from Quevec
+#' @return a wide format data frame
+#' @export
+get_quebec_case_data <- function(){
+  readr::read_csv("https://www.inspq.qc.ca/sites/default/files/covid/donnees/covid19-hist.csv")
+}
+
+get_alberta_case_data2 <- function(){
+  url <- "https://www.alberta.ca/stats/covid-19-alberta-statistics.htm"
+  r<-xml2::read_html(url)
+  n<-r %>% rvest::html_node("#htmlwidget-6045272bf9c7462e8b33")
+  widget_data<-r %>% rvest::html_node(xpath="//script[@data-for='htmlwidget-6045272bf9c7462e8b33']") %>%
+    rvest::html_text() %>%
+    jsonlite::parse_json()
+
+  d<-widget_data$x$data %>%
+    lapply(unlist) %>%
+    bind_cols() %>%
+    as_tibble() %>%
+    setNames(c("Case number","Date reported","Alberta Health Service Zone","Gender","Age group","Case status","Case type")) %>%
+    mutate(Date=as.Date(`Date reported`)) %>%
+    arrange(Date)
+}
+
 #' import and recode case data from British Columbia CDC. Tends to have a day lag
 #' @return a wide format data frame with one row per case with Health Authority, gender, age group
 #' and report date
