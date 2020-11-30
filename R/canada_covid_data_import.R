@@ -501,6 +501,24 @@ get_manitoba_daily_case_data <- function(date=NULL){
     bind_rows
 }
 
+
+#' import and recode case data from caanada covid tracker
+#' @param province two letter provincial abbreviation code
+#' @return a wide format data frame
+#' @export
+get_can_covid_tracker_data <- function(province){
+  if (province=="CA") {
+    url="https://api.covid19tracker.ca/reports"
+  } else {
+    url=paste0("https://api.covid19tracker.ca/reports/province/",province)
+  }
+  r<-jsonlite::read_json(url)$data
+  d<-r %>%
+    lapply(function(l)l %>% unlist %>% as.data.frame() %>% t() %>% as_tibble()) %>%
+    bind_rows() %>%
+    mutate(Date=as.Date(date))
+}
+
 #' import and recode case data from Saskatchewan.
 #' @return a wide format data frame
 #' @export
