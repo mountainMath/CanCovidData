@@ -3,6 +3,8 @@
 export(add_days_since)
 export(compute_rolling_growth_rates)
 export(get_alberta_case_data)
+export(get_bc_covid_speak_survey_data)
+export(get_bc_covid_speak_survey_pop_group_data)
 export(get_british_columbia_case_data)
 export(get_british_columbia_test_data)
 export(get_can_covid_tracker_data)

@@ -756,3 +756,62 @@ replace_all_health_region_geocodes <- function(data) {
     replace_ON_health_region_geocodes() %>%
     replace_SK_health_region_geocodes()
 }
+
+
+get_bc_covid_speak_survey_path <- function(){
+  tmp <- tempdir()
+  path <- file.path(tempdir(),"bc_covid_speak_survey.xlsx")
+  if (!file.exists(path))
+    download.file("http://www.bccdc.ca/Health-Info-Site/Documents/BC_COVID_19_Survey_downloadable_data.xlsx?Web=1",path)
+  path
+}
+
+get_bc_covid_speak_survey_header <- function(file,sheet,size=2){
+  h<-readxl::read_xlsx(file,sheet,col_names = FALSE,n_max=size) %>%
+    t() %>%
+    as_tibble() %>%
+    fill(V1) %>%
+    mutate(V3=case_when(is.na(V1) ~ V2,
+                        is.na(V2) ~ V1,
+                        TRUE ~ paste0(V1," - ",V2))) %>%
+    pull(V3)
+}
+
+
+
+#' get BC Covid SPEAK survey data
+#' @return a dataframe with data
+#' @export
+get_bc_covid_speak_survey_data <- function(){
+  tmp <- get_bc_covid_speak_survey_path()
+  sd <- readxl::read_xlsx(tmp,"Survey Data",
+                          col_names = get_bc_covid_speak_survey_header(tmp,"Survey Data",2),
+                          skip=2) %>%
+    fill(Domain) %>%
+    mutate_at(vars(matches(" - ")),function(d)na_if(d,"Suppressed") %>% as.numeric) %>%
+    pivot_longer(cols=matches(" - ")) %>%
+    mutate(level=gsub(" - .+$","",name),
+           region=gsub("^.+ - ","",name) %>% gsub(" \\(%\\)$","",.)) %>%
+    select(-name) %>%
+    mutate(value=value/100)
+
+}
+
+#' get BC Covid SPEAK population group survey data
+#' @return a dataframe with data
+#' @export
+get_bc_covid_speak_survey_pop_group_data <- function(){
+  tmp <- get_bc_covid_speak_survey_path()
+  ad <- readxl::read_xlsx(tmp,"Survey Data by Population Group",
+                          col_names = get_bc_covid_speak_survey_header(tmp,"Survey Data by Population Group",2),
+                          skip=2) %>%
+    rename("Population Group"="Population Group - Population Group","Category"="Population Group Category - Population Group Category") %>%
+    fill(Domain,Indicator,`Population Group`,Category) %>%
+    mutate_at(vars(matches(" - ")),function(d)na_if(d,"Suppressed") %>% as.numeric) %>%
+    pivot_longer(cols=matches(" - ")) %>%
+    slice(-1) %>%
+    mutate(level=gsub(" - .+$","",name),
+           region=gsub("^.+ - ","",name) %>% gsub("\r\n"," ",.) %>% gsub(" \\(%\\)$","",.)) %>%
+    select(-name) %>%
+    mutate(value=value/100)
+}

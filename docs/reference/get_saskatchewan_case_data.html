@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Simple key-value cache function accepting closures — simpleCache • CanCovidData</title>
+<title>import and recode case data from Saskatchewan. — get_saskatchewan_case_data • CanCovidData</title>
 
 
 <!-- jquery -->
@@ -41,8 +41,8 @@
   <link href="../extra.css" rel="stylesheet">
   
 
-<meta property="og:title" content="Simple key-value cache function accepting closures — simpleCache" />
-<meta property="og:description" content="Simple key-value cache function accepting closures" />
+<meta property="og:title" content="import and recode case data from Saskatchewan. — get_saskatchewan_case_data" />
+<meta property="og:description" content="import and recode case data from Saskatchewan." />
 
 
 
@@ -113,38 +113,21 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Simple key-value cache function accepting closures</h1>
-    <small class="dont-index">Source: <a href='https://github.com/mountainMath/CanCovidData/blob/master/R/helpers.R'><code>R/helpers.R</code></a></small>
-    <div class="hidden name"><code>simpleCache.Rd</code></div>
+    <h1>import and recode case data from Saskatchewan.</h1>
+    <small class="dont-index">Source: <a href='https://github.com/mountainMath/CanCovidData/blob/master/R/canada_covid_data_import.R'><code>R/canada_covid_data_import.R</code></a></small>
+    <div class="hidden name"><code>get_saskatchewan_case_data.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Simple key-value cache function accepting closures</p>
+    <p>import and recode case data from Saskatchewan.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>simpleCache</span><span class='op'>(</span><span class='va'>object</span>, <span class='va'>key</span>, path <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/options.html'>getOption</a></span><span class='op'>(</span><span class='st'>"custom_data_path"</span><span class='op'>)</span>, refresh <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>get_saskatchewan_case_data</span><span class='op'>(</span><span class='op'>)</span></pre>
 
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>object</th>
-      <td><p>closure with return expression to be cached</p></td>
-    </tr>
-    <tr>
-      <th>key</th>
-      <td><p>cache key</p></td>
-    </tr>
-    <tr>
-      <th>path</th>
-      <td><p>path to cache the data</p></td>
-    </tr>
-    <tr>
-      <th>refresh</th>
-      <td><p>bool option to force refresh of cache, default FALSE</p></td>
-    </tr>
-    </table>
 
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>a wide format data frame</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
