@@ -566,6 +566,20 @@ get_british_columbia_case_data <- function(){
     mutate(`Reported Date`=as.Date(`Reported Date`,tryFormats = c("%Y-%m-%d", "%m/%d/%Y")))
 }
 
+#' import and recode Health Region (Health Service Delivery Area) case data from British Columbia CDC. Tends to have a day lag
+#' @return a wide format data frame with one row per Date, Health Authority, Health Region,
+#' with Cases and Cases Smoothed
+#' @export
+get_british_columbia_hr_case_data <- function(){
+  path="http://www.bccdc.ca/Health-Info-Site/Documents/BCCDC_COVID19_Regional_Summary_Data.csv"
+  read_csv(path,col_types=cols(.default="c")) %>%
+    rename(`Health Authority`=HA,`Health Region`=HSDA,Cases=Cases_Reported,`Cases Smoothed` =Cases_Reported_Smoothed ) %>%
+    mutate(Date=as.Date(Date,tryFormats = c("%Y-%m-%d", "%m/%d/%Y"))) %>%
+    mutate_at(c("Cases","Cases Smoothed"),as.numeric)
+}
+
+
+
 #' import and recode test data from British Columbia CDC. Tends to have a day lag
 #' @return a long format data frame with Date, Health Authority, Metric of tpye of test and Count
 #' @export
