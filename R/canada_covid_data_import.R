@@ -578,7 +578,50 @@ get_british_columbia_hr_case_data <- function(){
     mutate_at(c("Cases","Cases Smoothed"),as.numeric)
 }
 
+#' import open table data from \link{https://www.opentable.com/state-of-industry}
+#' @param type, type of data, one of "fullbook", "reopening", or "occupancy"
+#' @return open table booking, opening or occupancy data
+#'
+#' @export
+get_open_table_data <- function(type=c("fullbook",  "reopening", "occupancy")){
+  type <- type[1]
+  root <- xml2::read_html("https://www.opentable.com/state-of-industry")
+  s<-root %>% rvest::html_nodes("script")
+  r<-s[s %>% lapply(function(ss)grepl("covidDataCenter",rvest::html_text(ss))) %>% unlist]
+  json_text <- rvest::html_text(r)[[1]] %>%
+    gsub('^.+"covidDataCenter":\\{','{',.) %>%
+    gsub(',"authentication".+$','',.)
 
+  extract_data <- function(l,header){
+    data <- as_tibble(l)
+    v <- data %>% select_if(is.list) %>% names
+    data %>% cbind(data %>%
+                     pull(v) %>%
+                     lapply(function(r){
+                       n <- length(header)-length(r)
+                       if (n>0) r<-c(r,rep(NA,n))
+                       r
+                     }) %>%
+                     as.data.frame(row.names = header) %>%
+                     t() %>%
+                     as_tibble(.name_repair = "minimal")) %>%
+      select(-one_of(v))
+  }
+
+  json <- jsonlite::fromJSON(json_text)[[type]]
+  header=json$headers
+  data <- names(json) %>%
+    setdiff(c("headers","lastModified")) %>%
+    lapply(function(n){
+      extract_data(json[[n]],header) %>%
+        mutate(level=n)
+    }) %>%
+    bind_rows() %>%
+    as_tibble() %>%
+    pivot_longer(-one_of(c("name","id","size","level","country", "state" )),names_to="date",values_to="value") %>%
+    mutate_at(c("size","value"),as.numeric) %>%
+    mutate(Date=as.Date(paste0(date,"/2020"),format = "%m/%d/%Y"))
+}
 
 #' import and recode test data from British Columbia CDC. Tends to have a day lag
 #' @return a long format data frame with Date, Health Authority, Metric of tpye of test and Count
