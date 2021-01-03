@@ -68,7 +68,7 @@ get_canada_covid_working_group_tests <- function(){
 #' `type` is "Cases", "Deaths", "Recovered". All are new daily cases
 #' and Recovered is cumulative recovered cases.
 #' @export
-get_canada_covid_working_group_data <- function(use_csv=FALSE){
+get_canada_covid_working_group_data <- function(use_csv=TRUE){
   if (use_csv) {
     result <- bind_rows(get_canada_covid_working_group_cases() %>% mutate(type="Cases"),
                         get_canada_covid_working_group_deaths() %>% mutate(type="Deaths"),
@@ -114,12 +114,12 @@ get_canada_covid_working_group_provincial_data <- function(){
   get_canada_covid_working_group_data() %>%
     mutate(count=coalesce(count,0)) %>%
     group_by(province,Date,type) %>%
-    summarize(count=sum(count)) %>%
+    summarize(count=sum(count),.groups="drop") %>%
     pivot_wider(id_cols = c("province","Date"),names_from = type,values_from = count) %>%
     group_by(province) %>%
     arrange(Date) %>%
-    fill(Recovered,.direction = "down") %>%
-    mutate(Recovered=coalesce(Recovered,0),
+    #fill(Recovered,.direction = "down") %>%
+    mutate(#Recovered=coalesce(Recovered,0),
            Cases=coalesce(Cases,0),
            Deaths=coalesce(Deaths,0)) %>%
     ungroup %>%
