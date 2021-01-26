@@ -578,6 +578,30 @@ get_british_columbia_hr_case_data <- function(){
     mutate_at(c("Cases","Cases Smoothed"),as.numeric)
 }
 
+#' Get Open Canada Working Group timeseries data via API
+#'
+#' @param type type of data, one of cases, mortality, recovered, testing, active, avaccine, dvaccine or cvaccine
+#' @param location of data, either level of geography canada, prov, hr, or a specific region code, two-letter province code or a health region code
+#' @return a data frame with the data
+#' @export
+get_canada_covid_working_group_timeseries <- function(type="cases",location="prov") {
+  url=paste0("https://api.opencovid.ca/timeseries?stat=",type,"&loc=",location)
+  response <- httr::GET(url)
+  result <- httr::content(response)[[type]] %>%
+    purrr::map_df(function(d)as_tibble(d,.name_repair = "minimal"))
+
+  dates <- names(result)[grepl("date",names(result))]
+  if (length(dates>0)) result <- result %>% mutate_at(dates,function(d)as.Date(d,format="%d-%m-%Y"))
+
+  if ("province" %in% names(result)) {
+    result <- result %>%
+      mutate(Province=recode(province,!!!reverse_provincial_recodes),
+             shortProvince=recode(Province,!!!provincial_recodes))
+  }
+
+  result
+}
+
 #' import open table data from \link{https://www.opentable.com/state-of-industry}
 #' @param type, type of data, one of "fullbook", "reopening", or "occupancy"
 #' @return open table booking, opening or occupancy data

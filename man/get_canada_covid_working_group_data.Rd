@@ -4,7 +4,7 @@
 \alias{get_canada_covid_working_group_data}
 \title{data from the covid-19 data working group (https://github.com/ishaberry/Covid19Canada)}
 \usage{
-get_canada_covid_working_group_data(use_csv = FALSE)
+get_canada_covid_working_group_data(use_csv = TRUE)
 }
 \arguments{
 \item{use_csv}{use convenience csv download instead of cases}

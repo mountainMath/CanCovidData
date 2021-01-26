@@ -4,7 +4,7 @@
 #' `Confirmed` and `Deaths` are cumulative
 #' @export
 get_ecdc_data <- function(){
-  today=Sys.Date()
+    today=Sys.Date()
   tmp=tempfile()
   tryCatch({
     url <- paste("https://www.ecdc.europa.eu/sites/default/files/documents/COVID-19-geographic-disbtribution-worldwide-",format(today, "%Y-%m-%d"), ".xlsx", sep = "")
@@ -77,9 +77,11 @@ get_jhs_data <- function(){
 #' `Deaths`, `Recovered`, `Active`, `Cases`, `Population 2019`, `countryCode`, Cases is daily new cases, others are cumulative. countryCode is the ISO3C (where it exists) for the country
 #' @export
 get_country_timeline_ecdc_jhs_data <- function(){
-  ecdc_data <- simpleCache({
-    get_ecdc_data()
-  },"static_ecdc_data_snapshot",path=tempdir(),refresh=FALSE)
+  # ecdc_data <- simpleCache({
+  #    get_ecdc_data()
+  # },"static_ecdc_data_snapshot",path=tempdir(),refresh=FALSE)
+
+  ecdc_data <-readr::read_csv("https://opendata.ecdc.europa.eu/covid19/nationalcasedeath/csv")
 
 
   jhs_data <- get_jhs_data() %>%
@@ -88,16 +90,17 @@ get_country_timeline_ecdc_jhs_data <- function(){
     ungroup
 
   # Merge the two sets of data, then join in the `Population 2019`,`countryCode`
-  full_list <- bind_rows(ecdc_data %>%
-                           filter(Date<=min(jhs_data$Date)) %>%
-                           mutate(Recovered=0) %>%
-                           select(names(jhs_data)),
-                         jhs_data) %>%
+    # full_list <- bind_rows(ecdc_data %>%
+    #                          filter(Date<=min(jhs_data$Date)) %>%
+    #                          mutate(Recovered=0) %>%
+    #                          select(names(jhs_data)),
+    #                        jhs_data) %>%
+  full_list <- jhs_data %>%
     mutate(Active=Confirmed-Deaths-Recovered) %>%
     group_by(Country) %>%
     mutate(Cases=Confirmed-lag(Confirmed,order_by = Date,default = 0)) %>%
     ungroup
-  right_join(full_list, ecdc_data %>% select(`Country`,`Population 2019`,`countryCode`) %>% distinct())
+  right_join(full_list, ecdc_data %>% select(`Country`=country,`Population 2019`=population,`countryCode`=country_code) %>% distinct())
 }
 
 #' @importFrom utils unzip
