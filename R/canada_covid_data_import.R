@@ -634,21 +634,22 @@ get_open_table_data <- function(type=c("fullbook",  "reopening", "occupancy")){
 
   json <- jsonlite::fromJSON(json_text)[[type]]
   header=json$headers
-  months <- header %>% strsplit("/") %>% lapply(first) %>% unlist
-  old_year <- which(months==12) %>% last
-  years=c(rep("2020",old_year),rep("2021",length(months)-old_year))
-  headers <- seq(1,length(header)) %>% lapply(function(i) paste0(header[i],"/",years[i])) %>% unlist
+  #months <- header %>% strsplit("/") %>% lapply(first) %>% unlist
+  #months <- header %>% strsplit("/") %>% lapply(first) %>% unlist
+  #old_year <- which(months==12) %>% last
+  #years=c(rep("2020",old_year),rep("2021",length(months)-old_year))
+  #headers <- seq(1,length(header)) %>% lapply(function(i) paste0(header[i],"/",years[i])) %>% unlist
   data <- names(json) %>%
     setdiff(c("headers","lastModified")) %>%
     lapply(function(n){
-      extract_data(json[[n]],headers) %>%
+      extract_data(json[[n]],header) %>%
         mutate(level=n)
     }) %>%
     bind_rows() %>%
     as_tibble() %>%
-    pivot_longer(-one_of(c("name","id","size","level","country", "state" )),names_to="date",values_to="value") %>%
+    tidyr::pivot_longer(-one_of(c("name","id","size","level","country", "state" )),names_to="date",values_to="value") %>%
     mutate_at(c("size","value"),as.numeric) %>%
-    mutate(Date=as.Date(date,format = "%m/%d/%Y"))
+    mutate(Date=as.Date(date,format = "%Y/%m/%d"))
 }
 
 #' import and recode test data from British Columbia CDC. Tends to have a day lag
