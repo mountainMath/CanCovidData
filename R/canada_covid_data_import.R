@@ -647,7 +647,7 @@ get_open_table_data <- function(type=c("fullbook",  "reopening", "occupancy")){
     }) %>%
     bind_rows() %>%
     as_tibble() %>%
-    tidyr::pivot_longer(-one_of(c("name","id","size","level","country", "state" )),names_to="date",values_to="value") %>%
+    tidyr::pivot_longer(-one_of(c("name","id","size","level","country","countryId", "state" )),names_to="date",values_to="value") %>%
     mutate_at(c("size","value"),as.numeric) %>%
     mutate(Date=as.Date(date,format = "%Y/%m/%d"))
 }
