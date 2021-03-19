@@ -18,7 +18,7 @@ Imports:
     lubridate,
     httr,
     cansim,
-    sf,
+    sf (>= 0.9-7),
     jsonlite,
     stringr,
     xml2,
