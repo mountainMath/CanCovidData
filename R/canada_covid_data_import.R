@@ -614,7 +614,8 @@ get_open_table_data <- function(type=c("fullbook",  "reopening", "occupancy")){
   r<-s[s %>% lapply(function(ss)grepl("covidDataCenter",rvest::html_text(ss))) %>% unlist]
   json_text <- rvest::html_text(r)[[1]] %>%
     gsub('^.+"covidDataCenter":\\{','{',.) %>%
-    gsub(',"authentication".+$','',.)
+    gsub(',"authentication".+$','',.) %>%
+    gsub('\\]\\}\\}\\};.+$','\\]\\}\\}',.)
 
   extract_data <- function(l,header){
     data <- as_tibble(l)
