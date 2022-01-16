@@ -451,8 +451,9 @@ get_cansim_old_case_data <- function(){
 #' transmission pathway, status, and onset of symptoms data
 #' @export
 get_ontario_case_data <- function(){
-  path="https://data.ontario.ca/datastore/dump/455fd63b-603d-4608-8216-7d8647f43350?format=csv"
-  ontario_data <- read_csv(path) %>% #, col_types = cols(.default="c")) %>%
+  path <- "https://data.ontario.ca/dataset/f4112442-bdc8-45d2-be3c-12efae72fb27/resource/455fd63b-603d-4608-8216-7d8647f43350/download/conposcovidloc.csv"
+  #path="https://data.ontario.ca/datastore/dump/455fd63b-603d-4608-8216-7d8647f43350?format=csv"
+  ontario_data <- readr::read_csv(path) %>% #, col_types = cols(.default="c")) %>%
     st_as_sf(coords = c("Reporting_PHU_Longitude", "Reporting_PHU_Latitude"), crs = 4326, agr = "constant") %>%
     mutate(Date=as.Date(Accurate_Episode_Date))
 }
@@ -462,6 +463,14 @@ get_ontario_case_data <- function(){
 #' status, case type
 #' @export
 get_alberta_case_data <- function(){
+  path ="https://www.alberta.ca/data/stats/covid-19-alberta-statistics-data.csv"
+  data <- readr::read_csv(path) %>%
+    dplyr::select(-matches("...\\d+"))
+
+  data
+}
+
+get_alberta_case_data3 <- function(){
   path="https://covid19stats.alberta.ca/"
   r <- xml2::read_html(path)
   scripts <- rvest::html_nodes(r, css='script[type="application/json"]') %>%
